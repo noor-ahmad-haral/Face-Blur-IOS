@@ -55,19 +55,49 @@ export function SaveIcon({ color = '#2a3656', s = 15 }: { color?: string; s?: nu
 }
 
 export function ShareIcon({ color = '#2a3656', s = 18 }: { color?: string; s?: number }) {
+  // iOS-style share glyph: a tray (box open at the top) with an arrow rising out of it.
+  const stroke = Math.max(2, s * 0.12);
   return (
     <View style={{ width: s, height: s }}>
-      <View style={{ position: 'absolute', left: 0, top: s / 2 - 1.2, width: s * 0.78, height: 2.4, backgroundColor: color, borderRadius: 2 }} />
+      {/* tray / box */}
       <View
         style={{
           position: 'absolute',
-          right: 0,
-          top: s / 2 - (s * 0.5) / 2,
-          width: s * 0.5,
-          height: s * 0.5,
-          borderTopWidth: 2.4,
-          borderRightWidth: 2.4,
+          left: s * 0.14,
+          bottom: 0,
+          width: s * 0.72,
+          height: s * 0.56,
+          borderWidth: stroke,
+          borderTopWidth: 0,
           borderColor: color,
+          borderBottomLeftRadius: s * 0.16,
+          borderBottomRightRadius: s * 0.16,
+        }}
+      />
+      {/* arrow stem */}
+      <View
+        style={{
+          position: 'absolute',
+          left: s / 2 - stroke / 2,
+          top: s * 0.08,
+          width: stroke,
+          height: s * 0.5,
+          backgroundColor: color,
+          borderRadius: stroke,
+        }}
+      />
+      {/* arrow head (up chevron) */}
+      <View
+        style={{
+          position: 'absolute',
+          left: s / 2 - s * 0.16,
+          top: s * 0.09,
+          width: s * 0.32,
+          height: s * 0.32,
+          borderTopWidth: stroke,
+          borderLeftWidth: stroke,
+          borderColor: color,
+          borderTopLeftRadius: stroke * 0.6,
           transform: [{ rotate: '45deg' }],
         }}
       />

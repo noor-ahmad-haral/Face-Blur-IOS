@@ -117,22 +117,18 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
       </View>
 
       <View style={styles.actions}>
-        <ActionRow
-          icon={<ImageGlyph color={colors.peri} s={20} />}
+        <ActionButton
+          icon={<ImageGlyph color={colors.peri} s={19} />}
           label="View"
           onPress={() => photoUri && setViewerOpen(true)}
         />
-        <ActionRow
-          icon={<ShareIcon color={colors.peri} s={20} />}
-          label="Share"
-          onPress={share}
-        />
-        <ActionRow
-          icon={<TrashIcon color="#ff6b6b" s={19} />}
+        <ActionButton
+          icon={<TrashIcon color="#ff6b6b" s={18} />}
           label="Delete"
           color="#ff6b6b"
           onPress={confirmDelete}
         />
+        <ActionButton icon={<ShareIcon color={colors.peri} s={19} />} label="Share" onPress={share} />
       </View>
 
       <Modal visible={viewerOpen} transparent animationType="fade" onRequestClose={() => setViewerOpen(false)}>
@@ -147,10 +143,10 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
   );
 }
 
-function ActionRow({
+function ActionButton({
   icon,
   label,
-  color = colors.white,
+  color = colors.mutedD,
   onPress,
 }: {
   icon: React.ReactNode;
@@ -159,9 +155,13 @@ function ActionRow({
   onPress: () => void;
 }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.actionRow, pressed && styles.actionPressed]}>
-      <View style={styles.actionIcon}>{icon}</View>
-      <Text style={[styles.actionLabel, { color }]}>{label}</Text>
+    <Pressable onPress={onPress} style={styles.action}>
+      {({ pressed }) => (
+        <>
+          <View style={[styles.actionTile, pressed && styles.actionTilePressed]}>{icon}</View>
+          <Text style={[styles.actionLabel, { color }]}>{label}</Text>
+        </>
+      )}
     </Pressable>
   );
 }
@@ -198,24 +198,24 @@ const styles = StyleSheet.create({
   fileName: { color: colors.white, fontWeight: '600', fontSize: 15 },
   fileMeta: { color: colors.mutedD, fontSize: 12.5, marginTop: 4 },
   actions: {
-    marginTop: 24,
-    marginHorizontal: 18,
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: colors.card,
-  },
-  actionRow: {
+    marginTop: 28,
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.cardDivider,
+    justifyContent: 'center',
+    gap: 28,
   },
-  actionPressed: { backgroundColor: '#ffffff10' },
-  actionIcon: { width: 26, alignItems: 'center' },
-  actionLabel: { fontWeight: '600', fontSize: 17 },
+  action: { alignItems: 'center' },
+  actionTile: {
+    width: 54,
+    height: 54,
+    borderRadius: 16,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.line,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionTilePressed: { backgroundColor: colors.chip, borderColor: colors.peri },
+  actionLabel: { marginTop: 8, fontWeight: '600', fontSize: 12.5 },
   viewer: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.95)',
