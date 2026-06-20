@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,10 @@ import {
   Image,
   ActivityIndicator,
   useWindowDimensions,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { captureRef } from 'react-native-view-shot';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList, BlurRegion } from '../navigation/types';
 import { colors } from '../theme/colors';
@@ -43,6 +45,8 @@ export default function EditorScreen({ navigation, route }: Props) {
   const [imgSize, setImgSize] = useState<{ w: number; h: number } | null>(null);
   const [loading, setLoading] = useState<boolean>(!!photoUri);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const shotRef = useRef<View>(null);
 
   // Run on-device face detection whenever a real photo is opened.
   useEffect(() => {
@@ -90,16 +94,27 @@ export default function EditorScreen({ navigation, route }: Props) {
     });
   }
 
-  function save() {
-    const uri = displayUri ?? photoUri;
-    const fileName = uri ? uri.split('/').pop() ?? 'photo.jpg' : 'photo.jpg';
-    navigation.navigate('SavedFiles', {
-      photoUri: uri,
-      mock,
-      fileName,
-      fileSizeMB: 1.31,
-      regionsCount: regions.filter((r) => r.blurred).length,
-    });
+  async function save() {
+    try {
+      setSaving(true);
+      let uri = displayUri ?? photoUri;
+      // Bake the blur into a real image file by capturing the composed view.
+      if (displayUri && imgSize) {
+        uri = await captureRef(shotRef, { format: 'jpg', quality: 0.95 });
+      }
+      const fileName = `blurface-${Date.now()}.jpg`;
+      navigation.navigate('SavedFiles', {
+        photoUri: uri,
+        mock,
+        fileName,
+        fileSizeMB: 0,
+        regionsCount: regions.filter((r) => r.blurred).length,
+      });
+    } catch (e) {
+      Alert.alert('Save failed', 'Could not render the blurred image. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   // Compute an aspect-fit rectangle so region fractions map 1:1 onto the image.
@@ -128,6 +143,46 @@ export default function EditorScreen({ navigation, route }: Props) {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <EditorTopBar onBack={() => navigation.goBack()} />
+
+      {/* Off-screen composition captured on Save — base image + only the
+          blurred faces baked in, with no selection outlines. */}
+      {displayUri && imgSize && (
+        <View
+          ref={shotRef}
+          collapsable={false}
+          pointerEvents="none"
+          style={[styles.captureBox, { width: dispW, height: dispH }]}
+        >
+          <Image source={{ uri: displayUri }} resizeMode="cover" style={StyleSheet.absoluteFill} />
+          {regions
+            .filter((r) => r.blurred)
+            .map((r) => (
+              <View
+                key={r.id}
+                style={{
+                  position: 'absolute',
+                  left: r.x * dispW,
+                  top: r.y * dispH,
+                  width: r.w * dispW,
+                  height: r.h * dispH,
+                  overflow: 'hidden',
+                }}
+              >
+                <Image
+                  source={{ uri: displayUri }}
+                  blurRadius={28}
+                  style={{
+                    position: 'absolute',
+                    width: dispW,
+                    height: dispH,
+                    left: -r.x * dispW,
+                    top: -r.y * dispH,
+                  }}
+                />
+              </View>
+            ))}
+        </View>
+      )}
 
       <View style={styles.frame}>
         {photoUri && !imgSize ? (
@@ -237,6 +292,13 @@ export default function EditorScreen({ navigation, route }: Props) {
         </Pressable>
         <PillButton label="Save" icon={<SaveIcon />} bg={colors.blue} onPress={save} />
       </View>
+
+      {saving && (
+        <View style={styles.savingOverlay}>
+          <ActivityIndicator color={colors.peri} size="large" />
+          <Text style={styles.loadingText}>Saving…</Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -281,6 +343,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   mockBlur: { backgroundColor: 'rgba(14,19,24,0.6)' },
+  captureBox: { position: 'absolute', left: -10000, top: 0 },
+  savingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(14,19,24,0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   facesLabel: {
     marginTop: 16,
     marginLeft: 20,
