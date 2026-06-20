@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Blur Face",
+    "slug": "blur-face",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0E1318"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.blurface.app"
+    },
+    "android": {
+      "package": "com.blurface.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0E1318",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Blur Face needs access to your photos to show recent images and let you pick one to blur.",
+          "savePhotosPermission": "Blur Face needs permission to save your edited photos."
+        }
+      ]
+    ]
+  }
+}
