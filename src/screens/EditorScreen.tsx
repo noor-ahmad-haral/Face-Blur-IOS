@@ -10,7 +10,7 @@ import {
   useWindowDimensions,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList, BlurRegion } from '../navigation/types';
@@ -39,6 +39,7 @@ const MOCK_FACES: BlurRegion[] = [
 export default function EditorScreen({ navigation, route }: Props) {
   const { photoUri, mock } = route.params;
   const { width: winW } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   const [regions, setRegions] = useState<BlurRegion[]>(mock ? MOCK_FACES : []);
   const [displayUri, setDisplayUri] = useState<string | undefined>(photoUri);
@@ -284,7 +285,7 @@ export default function EditorScreen({ navigation, route }: Props) {
         ))}
       </ScrollView>
 
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { marginBottom: Math.max(insets.bottom, 12) + 12 }]}>
         <PillButton label="Blur all" icon={<GridDots />} bg={colors.peri} onPress={blurAll} />
         <Pressable onPress={clearAll} style={styles.clearBtn}>
           <GridDots color={colors.peri} size={15} />
@@ -373,7 +374,6 @@ const styles = StyleSheet.create({
   bottomBar: {
     marginTop: 'auto',
     marginHorizontal: 16,
-    marginBottom: 24,
     height: 58,
     flexDirection: 'row',
     alignItems: 'center',

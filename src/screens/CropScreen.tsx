@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { View, PanResponder, StyleSheet, LayoutChangeEvent } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
@@ -18,6 +18,7 @@ type Corner = 'tl' | 'tr' | 'bl' | 'br';
 
 export default function CropScreen({ navigation, route }: Props) {
   const { photoUri, mock, onConfirm } = route.params;
+  const insets = useSafeAreaInsets();
   const [panelSize, setPanelSize] = useState({ width: 0, height: 0 });
   const [box, setBox] = useState<Box>({ x: 40, y: 80, w: 220, h: 180 });
   const boxRef = useRef(box);
@@ -153,7 +154,7 @@ export default function CropScreen({ navigation, route }: Props) {
         )}
       </View>
 
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { marginBottom: Math.max(insets.bottom, 12) + 12 }]}>
         <PillButton label="Cancel" outline textColor={colors.peri} onPress={() => navigation.goBack()} />
         <PillButton label="Confirm" icon={<CheckMark />} bg={colors.blue} onPress={confirm} />
       </View>
@@ -186,7 +187,6 @@ const styles = StyleSheet.create({
   bottomBar: {
     height: 58,
     marginHorizontal: 16,
-    marginBottom: 24,
     marginTop: 16,
     flexDirection: 'row',
     alignItems: 'center',
