@@ -6,7 +6,7 @@ import * as MediaLibrary from 'expo-media-library';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
-import { ImageGlyph, CheckMark } from '../components/icons';
+import { ImageGlyph, CheckMark, GearIcon } from '../components/icons';
 
 const appIcon = require('../../assets/images/app-icon.png');
 
@@ -57,10 +57,19 @@ export default function HomeScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.screen}>
-      {/* Small logo on top with the app name below it */}
+      {/* Header: logo, app name + tagline, and a settings button */}
       <View style={styles.header}>
         <Image source={appIcon} style={styles.logo} />
-        <Text style={styles.title}>Blur Face</Text>
+        <View style={styles.headerText}>
+          <Text style={styles.title}>Blur Face</Text>
+          <Text style={styles.tagline}>Protect privacy instantly</Text>
+        </View>
+        <Pressable
+          onPress={() => navigation.navigate('Settings')}
+          style={({ pressed }) => [styles.settingsBtn, pressed && styles.settingsBtnPressed]}
+        >
+          <GearIcon color={colors.white} s={20} />
+        </Pressable>
       </View>
 
       {/* Photo icon — tap to select an image */}
@@ -110,15 +119,37 @@ export default function HomeScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.ink },
-  header: { alignItems: 'center', marginTop: 24 },
-  logo: { width: 56, height: 56, borderRadius: 14 },
-  title: {
-    marginTop: 10,
-    color: colors.white,
-    fontWeight: '700',
-    fontSize: 24,
-    letterSpacing: -0.2,
+  header: {
+    marginTop: 12,
+    marginHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
   },
+  logo: { width: 56, height: 56, borderRadius: 15 },
+  headerText: { flex: 1 },
+  title: {
+    color: colors.white,
+    fontWeight: '800',
+    fontSize: 26,
+    letterSpacing: -0.4,
+  },
+  tagline: {
+    marginTop: 2,
+    color: colors.mutedD,
+    fontSize: 14,
+  },
+  settingsBtn: {
+    width: 46,
+    height: 46,
+    borderRadius: 13,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.line,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingsBtnPressed: { backgroundColor: colors.chip, borderColor: colors.peri },
   picker: {
     marginTop: 32,
     marginHorizontal: 24,

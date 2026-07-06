@@ -24,6 +24,7 @@ export type PhotoRef = {
 
 export type RootStackParamList = {
   Home: undefined;
+  Settings: undefined;
   Editor: PhotoRef;
   Crop: PhotoRef & { onConfirm: (region: BlurRegion) => void };
   SavedFiles: PhotoRef & { fileName: string; fileSizeMB: number; regionsCount: number };

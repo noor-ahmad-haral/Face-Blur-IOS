@@ -8,6 +8,7 @@ import {
   Modal,
   ActivityIndicator,
   Alert,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Sharing from 'expo-sharing';
@@ -18,6 +19,9 @@ import { colors } from '../theme/colors';
 import EditorTopBar from '../components/EditorTopBar';
 import { CheckMark, ShareIcon, TrashIcon, ImageGlyph } from '../components/icons';
 
+const appIcon = require('../../assets/images/app-icon.png');
+const PACKAGE = 'com.blurface.app';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'SavedFiles'>;
 
 export default function SavedFilesScreen({ navigation, route }: Props) {
@@ -26,6 +30,8 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
   const [asset, setAsset] = useState<MediaLibrary.Asset | null>(null);
   const [status, setStatus] = useState<'saving' | 'saved' | 'error'>('saving');
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [showRate, setShowRate] = useState(false);
+  const [rating, setRating] = useState(0);
 
   // Persist the blurred image into the device gallery as soon as we land here.
   useEffect(() => {
@@ -53,6 +59,32 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
       cancelled = true;
     };
   }, [photoUri]);
+
+  // Prompt for a rating shortly after the file is saved.
+  useEffect(() => {
+    if (status !== 'saved') return;
+    const t = setTimeout(() => setShowRate(true), 500);
+    return () => clearTimeout(t);
+  }, [status]);
+
+  async function rate(stars: number) {
+    setRating(stars);
+    setTimeout(async () => {
+      setShowRate(false);
+      if (stars >= 4) {
+        const market = `market://details?id=${PACKAGE}`;
+        const web = `https://play.google.com/store/apps/details?id=${PACKAGE}`;
+        try {
+          const ok = await Linking.canOpenURL(market);
+          await Linking.openURL(ok ? market : web);
+        } catch {
+          // ignore
+        }
+      } else {
+        Alert.alert('Thanks for your feedback', "We'll keep improving Blur Face!");
+      }
+    }, 280);
+  }
 
   async function share() {
     if (!photoUri) return;
@@ -137,6 +169,31 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
             <Image source={{ uri: photoUri }} resizeMode="contain" style={styles.viewerImage} />
           ) : null}
           <Text style={styles.viewerHint}>Tap anywhere to close</Text>
+        </Pressable>
+      </Modal>
+
+      <Modal visible={showRate} transparent animationType="fade" onRequestClose={() => setShowRate(false)}>
+        <Pressable style={styles.rateBackdrop} onPress={() => setShowRate(false)}>
+          <Pressable style={styles.rateCard} onPress={() => {}}>
+            <View style={styles.rateLogoWrap}>
+              <Image source={appIcon} style={styles.rateLogo} />
+            </View>
+            <Text style={styles.rateText}>
+              We're a small team dedicated to building great apps. Your 5-star review would help us a lot!
+            </Text>
+            <View style={styles.starsRow}>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Pressable key={i} onPress={() => rate(i)} hitSlop={6}>
+                  <Text style={[styles.star, i <= rating && styles.starFilled]}>
+                    {i <= rating ? '★' : '☆'}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+            <Pressable onPress={() => setShowRate(false)} hitSlop={8}>
+              <Text style={styles.rateLater}>Not now</Text>
+            </Pressable>
+          </Pressable>
         </Pressable>
       </Modal>
     </SafeAreaView>
@@ -224,4 +281,53 @@ const styles = StyleSheet.create({
   },
   viewerImage: { width: '100%', height: '85%' },
   viewerHint: { color: colors.mutedD, fontSize: 13, marginTop: 12 },
+  rateBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 30,
+  },
+  rateCard: {
+    width: '100%',
+    backgroundColor: colors.card,
+    borderRadius: 26,
+    paddingVertical: 30,
+    paddingHorizontal: 26,
+    alignItems: 'center',
+  },
+  rateLogoWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 18,
+    backgroundColor: colors.chip,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  rateLogo: { width: 56, height: 56, borderRadius: 14 },
+  rateText: {
+    color: colors.white,
+    fontSize: 17,
+    fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: 25,
+  },
+  starsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 24,
+  },
+  star: {
+    fontSize: 42,
+    color: colors.mutedD,
+    lineHeight: 48,
+  },
+  starFilled: { color: colors.star },
+  rateLater: {
+    color: colors.mutedD,
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 22,
+  },
 });

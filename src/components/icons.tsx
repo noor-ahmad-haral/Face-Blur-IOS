@@ -4,6 +4,168 @@ import { View } from 'react-native';
 // Small hand-drawn glyphs, ported 1:1 from the div-based icons in
 // project/animations.jsx so the editor chrome matches the real app exactly.
 
+export function InfoIcon({ color = '#fff', s = 22 }: { color?: string; s?: number }) {
+  return (
+    <View
+      style={{
+        width: s,
+        height: s,
+        borderRadius: s / 2,
+        borderWidth: 2,
+        borderColor: color,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <View style={{ width: 2.4, height: 2.4, borderRadius: 1.2, backgroundColor: color, marginTop: s * 0.14 }} />
+      <View style={{ width: 2.4, height: s * 0.32, borderRadius: 2, backgroundColor: color, marginTop: 2 }} />
+    </View>
+  );
+}
+
+export function MailIcon({ color = '#fff', s = 22 }: { color?: string; s?: number }) {
+  return (
+    <View
+      style={{
+        width: s,
+        height: s * 0.74,
+        borderRadius: 4,
+        borderWidth: 2,
+        borderColor: color,
+        overflow: 'hidden',
+      }}
+    >
+      <View
+        style={{
+          position: 'absolute',
+          top: -s * 0.2,
+          left: s * 0.12,
+          width: s * 0.5,
+          height: s * 0.5,
+          borderRightWidth: 2,
+          borderBottomWidth: 2,
+          borderColor: color,
+          transform: [{ rotate: '45deg' }],
+        }}
+      />
+    </View>
+  );
+}
+
+export function ShieldIcon({ color = '#fff', s = 22 }: { color?: string; s?: number }) {
+  return (
+    <View
+      style={{
+        width: s * 0.72,
+        height: s * 0.86,
+        borderWidth: 2,
+        borderColor: color,
+        borderTopLeftRadius: s * 0.18,
+        borderTopRightRadius: s * 0.18,
+        borderBottomLeftRadius: s * 0.36,
+        borderBottomRightRadius: s * 0.36,
+      }}
+    />
+  );
+}
+
+export function DocIcon({ color = '#fff', s = 22 }: { color?: string; s?: number }) {
+  return (
+    <View style={{ width: s * 0.74, height: s * 0.92 }}>
+      <View
+        style={{
+          position: 'absolute',
+          inset: 0,
+          borderWidth: 2,
+          borderColor: color,
+          borderRadius: 3,
+        }}
+      />
+      {[0.32, 0.5, 0.68].map((t) => (
+        <View
+          key={t}
+          style={{
+            position: 'absolute',
+            left: s * 0.14,
+            right: s * 0.14,
+            top: s * t,
+            height: 2,
+            backgroundColor: color,
+            borderRadius: 2,
+          }}
+        />
+      ))}
+    </View>
+  );
+}
+
+export function ThumbsUpIcon({ color = '#fff', s = 22 }: { color?: string; s?: number }) {
+  return (
+    <View style={{ width: s, height: s }}>
+      {/* base / palm */}
+      <View
+        style={{
+          position: 'absolute',
+          left: 0,
+          bottom: 0,
+          width: s * 0.26,
+          height: s * 0.5,
+          borderWidth: 2,
+          borderColor: color,
+          borderRadius: 2,
+        }}
+      />
+      {/* thumb + hand */}
+      <View
+        style={{
+          position: 'absolute',
+          left: s * 0.28,
+          bottom: 0,
+          right: 0,
+          height: s * 0.56,
+          borderWidth: 2,
+          borderColor: color,
+          borderTopLeftRadius: s * 0.2,
+          borderTopRightRadius: 4,
+          borderBottomRightRadius: 4,
+        }}
+      />
+      {/* raised thumb */}
+      <View
+        style={{
+          position: 'absolute',
+          left: s * 0.3,
+          top: 0,
+          width: s * 0.3,
+          height: s * 0.32,
+          borderWidth: 2,
+          borderBottomWidth: 0,
+          borderColor: color,
+          borderTopLeftRadius: s * 0.16,
+          borderTopRightRadius: s * 0.16,
+        }}
+      />
+    </View>
+  );
+}
+
+export function ChevronRight({ color = '#8a95a1', s = 14 }: { color?: string; s?: number }) {
+  return (
+    <View style={{ width: s, height: s, alignItems: 'center', justifyContent: 'center' }}>
+      <View
+        style={{
+          width: s * 0.5,
+          height: s * 0.5,
+          borderTopWidth: 2,
+          borderRightWidth: 2,
+          borderColor: color,
+          transform: [{ rotate: '45deg' }, { translateX: -s * 0.08 }],
+        }}
+      />
+    </View>
+  );
+}
+
 export function BackArrow({ color = '#fff' }: { color?: string }) {
   return (
     <View style={{ width: 20, height: 14, justifyContent: 'center' }}>
@@ -42,6 +204,39 @@ export function PlusIcon({ color = '#8a95a1', s = 18 }: { color?: string; s?: nu
     <View style={{ width: s, height: s, alignItems: 'center', justifyContent: 'center' }}>
       <View style={{ position: 'absolute', width: 2.5, height: s, backgroundColor: color, borderRadius: 2 }} />
       <View style={{ position: 'absolute', width: s, height: 2.5, backgroundColor: color, borderRadius: 2 }} />
+    </View>
+  );
+}
+
+export function GearIcon({ color = '#fff', s = 20 }: { color?: string; s?: number }) {
+  const teeth = 8;
+  const toothW = s * 0.16;
+  const toothH = s * 0.2;
+  return (
+    <View style={{ width: s, height: s, alignItems: 'center', justifyContent: 'center' }}>
+      {Array.from({ length: teeth }).map((_, i) => (
+        <View
+          key={i}
+          style={{
+            position: 'absolute',
+            width: toothW,
+            height: toothH,
+            backgroundColor: color,
+            borderRadius: 1.5,
+            transform: [{ rotate: `${i * (360 / teeth)}deg` }, { translateY: -s * 0.31 }],
+          }}
+        />
+      ))}
+      {/* donut body — transparent centre shows the button behind it */}
+      <View
+        style={{
+          width: s * 0.58,
+          height: s * 0.58,
+          borderRadius: s * 0.29,
+          borderWidth: s * 0.13,
+          borderColor: color,
+        }}
+      />
     </View>
   );
 }

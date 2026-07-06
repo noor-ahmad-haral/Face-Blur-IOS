@@ -3,6 +3,7 @@ import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from './types';
 import HomeScreen from '../screens/HomeScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 import EditorScreen from '../screens/EditorScreen';
 import CropScreen from '../screens/CropScreen';
 import SavedFilesScreen from '../screens/SavedFilesScreen';
@@ -23,6 +24,7 @@ export default function RootNavigator() {
         screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.ink } }}
       >
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Editor" component={EditorScreen} />
         <Stack.Screen name="Crop" component={CropScreen} options={{ presentation: 'modal' }} />
         <Stack.Screen name="SavedFiles" component={SavedFilesScreen} />
