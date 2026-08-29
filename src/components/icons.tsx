@@ -433,3 +433,34 @@ export function LockIcon({ peri = '#AEBDF4', blue = '#93A6F2', onBtn = '#2a3656'
     </View>
   );
 }
+
+export function SlidersIcon({ color = '#fff', s = 22 }: { color?: string; s?: number }) {
+  // Three horizontal rails with offset knobs — the "adjust" glyph.
+  const rails = [
+    { y: 0.2, knob: 0.62 },
+    { y: 0.5, knob: 0.3 },
+    { y: 0.8, knob: 0.72 },
+  ];
+  return (
+    <View style={{ width: s, height: s }}>
+      {rails.map((r) => (
+        <View key={r.y} style={{ position: 'absolute', left: 0, right: 0, top: s * r.y - 1 }}>
+          <View style={{ height: 2, backgroundColor: color, borderRadius: 2 }} />
+          <View
+            style={{
+              position: 'absolute',
+              left: s * r.knob - s * 0.09,
+              top: -s * 0.08,
+              width: s * 0.18,
+              height: s * 0.18,
+              borderRadius: s * 0.09,
+              borderWidth: 2,
+              borderColor: color,
+              backgroundColor: '#0E1318',
+            }}
+          />
+        </View>
+      ))}
+    </View>
+  );
+}

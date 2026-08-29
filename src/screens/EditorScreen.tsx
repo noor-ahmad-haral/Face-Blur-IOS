@@ -13,14 +13,16 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { RootStackParamList, BlurRegion } from '../navigation/types';
+import type { RootStackParamList, BlurRegion, EffectSettings } from '../navigation/types';
+import { DEFAULT_EFFECTS } from '../navigation/types';
 import { colors } from '../theme/colors';
 import EditorTopBar from '../components/EditorTopBar';
 import PhotoBackdrop from '../components/PhotoBackdrop';
 import ThumbChip from '../components/ThumbChip';
 import Avatar from '../components/Avatar';
 import PillButton from '../components/PillButton';
-import { GridDots, SaveIcon, PlusIcon } from '../components/icons';
+import RegionEffect from '../components/RegionEffect';
+import { GridDots, SaveIcon, PlusIcon, SlidersIcon } from '../components/icons';
 import { detectFaces } from '../lib/faceDetection';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Editor'>;
@@ -42,6 +44,7 @@ export default function EditorScreen({ navigation, route }: Props) {
   const insets = useSafeAreaInsets();
 
   const [regions, setRegions] = useState<BlurRegion[]>(mock ? MOCK_FACES : []);
+  const [effects, setEffects] = useState<EffectSettings>(DEFAULT_EFFECTS);
   const [displayUri, setDisplayUri] = useState<string | undefined>(photoUri);
   const [imgSize, setImgSize] = useState<{ w: number; h: number } | null>(null);
   const [loading, setLoading] = useState<boolean>(!!photoUri);
@@ -95,11 +98,15 @@ export default function EditorScreen({ navigation, route }: Props) {
     });
   }
 
+  function openEffects() {
+    navigation.navigate('Effects', { settings: effects, onApply: setEffects });
+  }
+
   async function save() {
     try {
       setSaving(true);
       let uri = displayUri ?? photoUri;
-      // Bake the blur into a real image file by capturing the composed view.
+      // Bake the effect into a real image file by capturing the composed view.
       if (displayUri && imgSize) {
         uri = await captureRef(shotRef, { format: 'jpg', quality: 0.95 });
       }
@@ -141,12 +148,21 @@ export default function EditorScreen({ navigation, route }: Props) {
     ? 'No faces found'
     : `Faces Detected (${regions.length})`;
 
+  function regionBox(r: BlurRegion) {
+    return {
+      left: `${r.x * 100}%`,
+      top: `${r.y * 100}%`,
+      width: `${r.w * 100}%`,
+      height: `${r.h * 100}%`,
+    } as const;
+  }
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <EditorTopBar onBack={() => navigation.goBack()} />
 
       {/* Off-screen composition captured on Save — base image + only the
-          blurred faces baked in, with no selection outlines. */}
+          covered faces baked in, with no selection outlines. */}
       {displayUri && imgSize && (
         <View
           ref={shotRef}
@@ -158,28 +174,8 @@ export default function EditorScreen({ navigation, route }: Props) {
           {regions
             .filter((r) => r.blurred)
             .map((r) => (
-              <View
-                key={r.id}
-                style={{
-                  position: 'absolute',
-                  left: r.x * dispW,
-                  top: r.y * dispH,
-                  width: r.w * dispW,
-                  height: r.h * dispH,
-                  overflow: 'hidden',
-                }}
-              >
-                <Image
-                  source={{ uri: displayUri }}
-                  blurRadius={28}
-                  style={{
-                    position: 'absolute',
-                    width: dispW,
-                    height: dispH,
-                    left: -r.x * dispW,
-                    top: -r.y * dispH,
-                  }}
-                />
+              <View key={r.id} style={[styles.region, regionBox(r)]}>
+                <RegionEffect region={r} settings={effects} imageUri={displayUri} dispW={dispW} dispH={dispH} />
               </View>
             ))}
         </View>
@@ -205,29 +201,9 @@ export default function EditorScreen({ navigation, route }: Props) {
           <View style={[styles.photoBox, { width: dispW, height: dispH }]}>
             <Image source={{ uri: displayUri }} resizeMode="cover" style={StyleSheet.absoluteFill} />
             {regions.map((r) => (
-              <Pressable
-                key={r.id}
-                onPress={() => toggleRegion(r.id)}
-                style={[
-                  styles.region,
-                  { left: `${r.x * 100}%`, top: `${r.y * 100}%`, width: `${r.w * 100}%`, height: `${r.h * 100}%` },
-                ]}
-              >
+              <Pressable key={r.id} onPress={() => toggleRegion(r.id)} style={[styles.region, regionBox(r)]}>
                 {r.blurred ? (
-                  // A blurred copy of the whole photo, shifted so only this
-                  // face shows through the region window — aligns perfectly
-                  // with the sharp image underneath and blurs reliably on Android.
-                  <Image
-                    source={{ uri: displayUri }}
-                    blurRadius={28}
-                    style={{
-                      position: 'absolute',
-                      width: dispW,
-                      height: dispH,
-                      left: -r.x * dispW,
-                      top: -r.y * dispH,
-                    }}
-                  />
+                  <RegionEffect region={r} settings={effects} imageUri={displayUri} dispW={dispW} dispH={dispH} />
                 ) : (
                   <View style={[StyleSheet.absoluteFill, styles.regionOutline]} />
                 )}
@@ -239,16 +215,9 @@ export default function EditorScreen({ navigation, route }: Props) {
           <View style={styles.photoArea}>
             <PhotoBackdrop photoUri={photoUri} mock={mock} />
             {regions.map((r) => (
-              <Pressable
-                key={r.id}
-                onPress={() => toggleRegion(r.id)}
-                style={[
-                  styles.region,
-                  { left: `${r.x * 100}%`, top: `${r.y * 100}%`, width: `${r.w * 100}%`, height: `${r.h * 100}%` },
-                ]}
-              >
+              <Pressable key={r.id} onPress={() => toggleRegion(r.id)} style={[styles.region, regionBox(r)]}>
                 {r.blurred ? (
-                  <View style={[StyleSheet.absoluteFill, styles.mockBlur]} />
+                  <RegionEffect region={r} settings={effects} dispW={dispW} dispH={dispH} />
                 ) : (
                   <View style={[StyleSheet.absoluteFill, styles.regionOutline]} />
                 )}
@@ -286,12 +255,15 @@ export default function EditorScreen({ navigation, route }: Props) {
       </ScrollView>
 
       <View style={[styles.bottomBar, { marginBottom: Math.max(insets.bottom, 12) + 12 }]}>
-        <PillButton label="Blur all" icon={<GridDots />} bg={colors.peri} onPress={blurAll} />
-        <Pressable onPress={clearAll} style={styles.clearBtn}>
+        <PillButton label="Blur all" icon={<GridDots />} bg={colors.peri} onPress={blurAll} style={styles.pill} />
+        <Pressable onPress={clearAll} style={styles.iconBtn}>
           <GridDots color={colors.peri} size={15} />
           <View style={styles.clearStrike} />
         </Pressable>
-        <PillButton label="Save" icon={<SaveIcon />} bg={colors.blue} onPress={save} />
+        <Pressable onPress={openEffects} style={styles.iconBtn}>
+          <SlidersIcon color={colors.peri} s={20} />
+        </Pressable>
+        <PillButton label="Save" icon={<SaveIcon />} bg={colors.blue} onPress={save} style={styles.pill} />
       </View>
 
       {saving && (
@@ -333,17 +305,14 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     overflow: 'hidden',
   },
-  region: {
-    position: 'absolute',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
+  // No clipping here — RegionEffect clips its own blur, and emoji overlays are
+  // allowed to spill past the face box.
+  region: { position: 'absolute' },
   regionOutline: {
     borderWidth: 1.5,
     borderColor: 'rgba(255,255,255,0.35)',
     borderRadius: 4,
   },
-  mockBlur: { backgroundColor: 'rgba(14,19,24,0.6)' },
   captureBox: { position: 'absolute', left: -10000, top: 0 },
   savingOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -378,8 +347,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 8,
   },
-  clearBtn: {
+  pill: { paddingHorizontal: 16 },
+  iconBtn: {
     width: 52,
     height: 52,
     borderRadius: 26,
