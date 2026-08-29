@@ -27,7 +27,7 @@ import { detectFaces } from '../lib/faceDetection';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Editor'>;
 
-const FRAME_H = 372;
+const FRAME_MAX_H = 372;
 const FRAME_MARGIN = 16;
 const FRAME_PAD = 8;
 
@@ -40,7 +40,7 @@ const MOCK_FACES: BlurRegion[] = [
 
 export default function EditorScreen({ navigation, route }: Props) {
   const { photoUri, mock } = route.params;
-  const { width: winW } = useWindowDimensions();
+  const { width: winW, height: winH } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
   const [regions, setRegions] = useState<BlurRegion[]>(mock ? MOCK_FACES : []);
@@ -126,8 +126,12 @@ export default function EditorScreen({ navigation, route }: Props) {
   }
 
   // Compute an aspect-fit rectangle so region fractions map 1:1 onto the image.
+  // Cap the preview against the window as well as an absolute maximum, so a
+  // short window (landscape, a folded inner screen, split screen) still leaves
+  // room for the chips and the action bar.
+  const frameH = Math.min(FRAME_MAX_H, Math.round(winH * 0.45));
   const availW = winW - FRAME_MARGIN * 2 - FRAME_PAD * 2;
-  const availH = FRAME_H - FRAME_PAD * 2;
+  const availH = frameH - FRAME_PAD * 2;
   let dispW = availW;
   let dispH = availH;
   if (imgSize) {
@@ -181,77 +185,88 @@ export default function EditorScreen({ navigation, route }: Props) {
         </View>
       )}
 
-      <View style={styles.frame}>
-        {photoUri && !imgSize ? (
-          // Real photo: show a loader until detection + sizing completes.
-          <View style={styles.loadingArea}>
-            {loading ? (
-              <>
-                <ActivityIndicator color={colors.peri} size="large" />
-                <Text style={styles.loadingText}>Finding faces…</Text>
-              </>
-            ) : (
-              displayUri && (
-                <Image source={{ uri: displayUri }} resizeMode="contain" style={StyleSheet.absoluteFill} />
-              )
-            )}
-          </View>
-        ) : photoUri && imgSize ? (
-          // Real photo, ready: aspect-fit image with detected regions overlaid.
-          <View style={[styles.photoBox, { width: dispW, height: dispH }]}>
-            <Image source={{ uri: displayUri }} resizeMode="cover" style={StyleSheet.absoluteFill} />
-            {regions.map((r) => (
-              <Pressable key={r.id} onPress={() => toggleRegion(r.id)} style={[styles.region, regionBox(r)]}>
-                {r.blurred ? (
-                  <RegionEffect region={r} settings={effects} imageUri={displayUri} dispW={dispW} dispH={dispH} />
-                ) : (
-                  <View style={[StyleSheet.absoluteFill, styles.regionOutline]} />
-                )}
-              </Pressable>
-            ))}
-          </View>
-        ) : (
-          // Mock placeholder (Recent tile without a backing image).
-          <View style={styles.photoArea}>
-            <PhotoBackdrop photoUri={photoUri} mock={mock} />
-            {regions.map((r) => (
-              <Pressable key={r.id} onPress={() => toggleRegion(r.id)} style={[styles.region, regionBox(r)]}>
-                {r.blurred ? (
-                  <RegionEffect region={r} settings={effects} dispW={dispW} dispH={dispH} />
-                ) : (
-                  <View style={[StyleSheet.absoluteFill, styles.regionOutline]} />
-                )}
-              </Pressable>
-            ))}
-          </View>
-        )}
-      </View>
-
-      <Text style={styles.facesLabel}>{facesLabel}</Text>
-      {error ? <Text style={styles.hint}>{error}</Text> : null}
-      {!loading && !error && regions.length === 0 ? (
-        <Text style={styles.hint}>Tap + to add a blur region by hand.</Text>
-      ) : null}
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
-        <Pressable onPress={addCustomRegion}>
-          <ThumbChip dashed>
-            <PlusIcon color={colors.mutedD} s={18} />
-          </ThumbChip>
-        </Pressable>
-        {regions.map((r, i) => (
-          <Pressable key={r.id} onPress={() => toggleRegion(r.id)}>
-            <ThumbChip badge={i + 1}>
-              {r.thumbUri ? (
-                <Image source={{ uri: r.thumbUri }} resizeMode="cover" style={styles.faceThumb} />
+      <ScrollView
+        style={styles.body}
+        contentContainerStyle={styles.bodyContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={[styles.frame, { height: frameH }]}>
+          {photoUri && !imgSize ? (
+            // Real photo: show a loader until detection + sizing completes.
+            <View style={styles.loadingArea}>
+              {loading ? (
+                <>
+                  <ActivityIndicator color={colors.peri} size="large" />
+                  <Text style={styles.loadingText}>Finding faces…</Text>
+                </>
               ) : (
-                <View style={{ transform: [{ scale: 1.3 }, { translateY: 6 }] }}>
-                  <Avatar size={50} tone={r.tone} />
-                </View>
+                displayUri && (
+                  <Image source={{ uri: displayUri }} resizeMode="contain" style={StyleSheet.absoluteFill} />
+                )
               )}
+            </View>
+          ) : photoUri && imgSize ? (
+            // Real photo, ready: aspect-fit image with detected regions overlaid.
+            <View style={[styles.photoBox, { width: dispW, height: dispH }]}>
+              <Image source={{ uri: displayUri }} resizeMode="cover" style={StyleSheet.absoluteFill} />
+              {regions.map((r) => (
+                <Pressable key={r.id} onPress={() => toggleRegion(r.id)} style={[styles.region, regionBox(r)]}>
+                  {r.blurred ? (
+                    <RegionEffect region={r} settings={effects} imageUri={displayUri} dispW={dispW} dispH={dispH} />
+                  ) : (
+                    <View style={[StyleSheet.absoluteFill, styles.regionOutline]} />
+                  )}
+                </Pressable>
+              ))}
+            </View>
+          ) : (
+            // Mock placeholder (Recent tile without a backing image).
+            <View style={styles.photoArea}>
+              <PhotoBackdrop photoUri={photoUri} mock={mock} />
+              {regions.map((r) => (
+                <Pressable key={r.id} onPress={() => toggleRegion(r.id)} style={[styles.region, regionBox(r)]}>
+                  {r.blurred ? (
+                    <RegionEffect region={r} settings={effects} dispW={dispW} dispH={dispH} />
+                  ) : (
+                    <View style={[StyleSheet.absoluteFill, styles.regionOutline]} />
+                  )}
+                </Pressable>
+              ))}
+            </View>
+          )}
+        </View>
+
+        <Text style={styles.facesLabel}>{facesLabel}</Text>
+        {error ? <Text style={styles.hint}>{error}</Text> : null}
+        {!loading && !error && regions.length === 0 ? (
+          <Text style={styles.hint}>Tap + to add a blur region by hand.</Text>
+        ) : null}
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.chipsScroll}
+          contentContainerStyle={styles.chipsRow}
+        >
+          <Pressable onPress={addCustomRegion}>
+            <ThumbChip dashed>
+              <PlusIcon color={colors.mutedD} s={18} />
             </ThumbChip>
           </Pressable>
-        ))}
+          {regions.map((r, i) => (
+            <Pressable key={r.id} onPress={() => toggleRegion(r.id)}>
+              <ThumbChip badge={i + 1}>
+                {r.thumbUri ? (
+                  <Image source={{ uri: r.thumbUri }} resizeMode="cover" style={styles.faceThumb} />
+                ) : (
+                  <View style={{ transform: [{ scale: 1.3 }, { translateY: 6 }] }}>
+                    <Avatar size={50} tone={r.tone} />
+                  </View>
+                )}
+              </ThumbChip>
+            </Pressable>
+          ))}
+        </ScrollView>
       </ScrollView>
 
       <View style={[styles.bottomBar, { marginBottom: Math.max(insets.bottom, 12) + 12 }]}>
@@ -280,7 +295,6 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.ink },
   frame: {
     marginHorizontal: FRAME_MARGIN,
-    height: FRAME_H,
     borderRadius: 14,
     backgroundColor: colors.frame,
     overflow: 'hidden',
@@ -333,6 +347,9 @@ const styles = StyleSheet.create({
     color: colors.mutedD,
     fontSize: 13.5,
   },
+  body: { flex: 1 },
+  bodyContent: { paddingBottom: 8 },
+  chipsScroll: { flexGrow: 0 },
   chipsRow: {
     marginTop: 14,
     paddingHorizontal: 16,
@@ -341,7 +358,6 @@ const styles = StyleSheet.create({
   },
   faceThumb: { width: 62, height: 62 },
   bottomBar: {
-    marginTop: 'auto',
     marginHorizontal: 16,
     height: 58,
     flexDirection: 'row',

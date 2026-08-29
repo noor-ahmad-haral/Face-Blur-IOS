@@ -52,7 +52,7 @@ export const DEFAULT_EFFECTS: EffectSettings = {
   kind: 'blur',
   shape: 'rect',
   intensity: 5,
-  pixelSize: 5,
+  pixelSize: 2,
   emoji: EMOJI_CHOICES[0],
 };
 
