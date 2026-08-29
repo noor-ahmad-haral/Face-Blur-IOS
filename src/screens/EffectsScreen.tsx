@@ -3,7 +3,14 @@ import { View, Text, Pressable, StyleSheet, ScrollView, useWindowDimensions } fr
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList, EffectSettings } from '../navigation/types';
-import { DEFAULT_EFFECTS, EMOJI_CHOICES, MIN_INTENSITY, MAX_INTENSITY } from '../navigation/types';
+import {
+  DEFAULT_EFFECTS,
+  EMOJI_CHOICES,
+  MIN_INTENSITY,
+  MAX_INTENSITY,
+  MIN_PIXEL_SIZE,
+  MAX_PIXEL_SIZE,
+} from '../navigation/types';
 import { colors } from '../theme/colors';
 import Segmented from '../components/Segmented';
 import Slider from '../components/Slider';
@@ -41,6 +48,15 @@ export default function EffectsScreen({ navigation, route }: Props) {
     onApply(DEFAULT_EFFECTS);
   }
 
+  // Blur and pixelate share the shape control and the slider, but each keeps
+  // its own amount: blur strength vs. mosaic block size.
+  const isPixelate = settings.kind === 'pixelate';
+  const noun = isPixelate ? 'Pixelate' : 'Blur';
+  const amount = isPixelate ? settings.pixelSize : settings.intensity;
+  const amountMin = isPixelate ? MIN_PIXEL_SIZE : MIN_INTENSITY;
+  const amountMax = isPixelate ? MAX_PIXEL_SIZE : MAX_INTENSITY;
+  const setAmount = (v: number) => update(isPixelate ? { pixelSize: v } : { intensity: v });
+
   return (
     <View style={styles.screen}>
       <Pressable style={styles.backdrop} onPress={() => navigation.goBack()} />
@@ -55,36 +71,12 @@ export default function EffectsScreen({ navigation, route }: Props) {
             onChange={(kind) => update({ kind })}
             options={[
               { value: 'blur', label: 'Blur' },
+              { value: 'pixelate', label: 'Pixelate' },
               { value: 'emoji', label: 'Emoji' },
             ]}
           />
 
-          {settings.kind === 'blur' ? (
-            <>
-              <Text style={styles.heading}>Blur shape</Text>
-              <Segmented
-                value={settings.shape}
-                onChange={(shape) => update({ shape })}
-                options={[
-                  { value: 'rect', label: 'Rectangle' },
-                  { value: 'oval', label: 'Oval' },
-                ]}
-              />
-
-              <Text style={styles.heading}>Blur intensity</Text>
-              <View style={styles.sliderRow}>
-                <Text style={styles.value}>{settings.intensity}</Text>
-                <View style={styles.sliderFlex}>
-                  <Slider
-                    value={settings.intensity}
-                    min={MIN_INTENSITY}
-                    max={MAX_INTENSITY}
-                    onChange={(intensity) => update({ intensity })}
-                  />
-                </View>
-              </View>
-            </>
-          ) : (
+          {settings.kind === 'emoji' ? (
             <>
               <Text style={styles.heading}>Emoji</Text>
               <View style={styles.emojiRow}>
@@ -107,7 +99,28 @@ export default function EffectsScreen({ navigation, route }: Props) {
                 })}
               </View>
             </>
+          ) : (
+            <>
+              <Text style={styles.heading}>{noun} shape</Text>
+              <Segmented
+                value={settings.shape}
+                onChange={(shape) => update({ shape })}
+                options={[
+                  { value: 'rect', label: 'Rectangle' },
+                  { value: 'oval', label: 'Oval' },
+                ]}
+              />
+
+              <Text style={styles.heading}>{isPixelate ? 'Pixelate size' : 'Blur intensity'}</Text>
+              <View style={styles.sliderRow}>
+                <Text style={styles.value}>{amount}</Text>
+                <View style={styles.sliderFlex}>
+                  <Slider value={amount} min={amountMin} max={amountMax} onChange={setAmount} />
+                </View>
+              </View>
+            </>
           )}
+
         </ScrollView>
 
         <View style={styles.actions}>

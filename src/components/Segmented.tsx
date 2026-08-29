@@ -30,7 +30,9 @@ export default function Segmented<T extends string>({
             ]}
           >
             {active ? <CheckMark color={colors.white} s={15} /> : null}
-            <Text style={[styles.label, active && styles.labelActive]}>{opt.label}</Text>
+            <Text numberOfLines={1} style={[styles.label, active && styles.labelActive]}>
+              {opt.label}
+            </Text>
           </Pressable>
         );
       })}
@@ -52,10 +54,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 6,
+    paddingHorizontal: 4,
   },
   divider: { borderLeftWidth: 1.5, borderLeftColor: colors.line },
   segmentActive: { backgroundColor: colors.card },
-  label: { color: colors.white, fontSize: 16, fontWeight: '500' },
+  label: { color: colors.white, fontSize: 15, fontWeight: '500' },
   labelActive: { fontWeight: '600' },
 });

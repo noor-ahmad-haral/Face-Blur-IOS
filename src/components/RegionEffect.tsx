@@ -1,7 +1,11 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import type { BlurRegion, EffectSettings } from '../navigation/types';
-import { blurRadiusFor } from '../navigation/types';
+import { blurRadiusFor, pixelCellFor } from '../navigation/types';
+
+// How far each mosaic block magnifies the photo. The block then shows a
+// 1/PIXEL_ZOOM sliver of the image, which reads as a single flat colour.
+const PIXEL_ZOOM = 25;
 
 // Renders the cover-up for a single region. Fills its parent, which is the
 // positioned/sized box for that region, so both the on-screen editor and the
@@ -61,6 +65,14 @@ export default function RegionEffect({
     return <View style={[StyleSheet.absoluteFill, styles.mockBlur, { borderRadius: radius }]} />;
   }
 
+  if (settings.kind === 'pixelate') {
+    return (
+      <View style={[StyleSheet.absoluteFill, { borderRadius: radius, overflow: 'hidden' }]}>
+        {mosaic(region, settings, imageUri, dispW, dispH, boxW, boxH)}
+      </View>
+    );
+  }
+
   return (
     <View style={[StyleSheet.absoluteFill, { borderRadius: radius, overflow: 'hidden' }]}>
       {/* A blurred copy of the whole photo, shifted so only this face shows
@@ -79,6 +91,73 @@ export default function RegionEffect({
       />
     </View>
   );
+}
+
+// Builds the grid of flat blocks for the pixelate effect.
+//
+// RN exposes no nearest-neighbour scaling, so a downscale/upscale round-trip
+// would come back bilinear-smoothed — a blur, not a mosaic. Instead each block
+// magnifies the photo by PIXEL_ZOOM about that block's own centre point and
+// clips to the block, so the block shows a sliver too small to vary: one flat
+// colour. A light blur first makes that colour the block's local average rather
+// than one arbitrary pixel.
+//
+// The magnification is a transform, not a layout size, so the Image still lays
+// out at photo size and Fresco keeps decoding it small — the same decode the
+// blur effect above already pays for.
+function mosaic(
+  region: BlurRegion,
+  settings: EffectSettings,
+  imageUri: string,
+  dispW: number,
+  dispH: number,
+  boxW: number,
+  boxH: number
+) {
+  const cell = pixelCellFor(settings.pixelSize, Math.min(boxW, boxH));
+  const cols = Math.max(1, Math.ceil(boxW / cell));
+  const rows = Math.max(1, Math.ceil(boxH / cell));
+  const blur = Math.max(2, Math.min(40, Math.round(cell * 0.5)));
+  const originX = region.x * dispW;
+  const originY = region.y * dispH;
+
+  const blocks = [];
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      // Centre of this block in photo-display coordinates.
+      const cx = originX + col * cell + cell / 2;
+      const cy = originY + row * cell + cell / 2;
+      blocks.push(
+        <View
+          key={`${col}-${row}`}
+          style={{
+            position: 'absolute',
+            left: col * cell,
+            top: row * cell,
+            width: cell,
+            height: cell,
+            overflow: 'hidden',
+          }}
+        >
+          <Image
+            source={{ uri: imageUri }}
+            blurRadius={blur}
+            style={{
+              position: 'absolute',
+              width: dispW,
+              height: dispH,
+              // Scaling happens about the view's own centre, so offset by where
+              // that centre lands to park (cx, cy) at the middle of the block.
+              left: cell / 2 - dispW / 2 - PIXEL_ZOOM * (cx - dispW / 2),
+              top: cell / 2 - dispH / 2 - PIXEL_ZOOM * (cy - dispH / 2),
+              transform: [{ scale: PIXEL_ZOOM }],
+            }}
+          />
+        </View>
+      );
+    }
+  }
+  return blocks;
 }
 
 const styles = StyleSheet.create({
