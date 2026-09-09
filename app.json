@@ -2,7 +2,7 @@
   "expo": {
     "name": "Blur Face",
     "slug": "blur-face",
-    "version": "1.4.1",
+    "version": "2.4.1",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",

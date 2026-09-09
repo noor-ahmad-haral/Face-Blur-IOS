@@ -19,6 +19,7 @@ import { colors } from '../theme/colors';
 import { useI18n } from '../i18n';
 import EditorTopBar from '../components/EditorTopBar';
 import { CheckMark, ShareIcon, TrashIcon, ImageGlyph } from '../components/icons';
+import AdBanner from '../components/AdBanner';
 
 const appIcon = require('../../assets/images/app-icon.png');
 const PACKAGE = 'com.blurface.app';
@@ -121,7 +122,7 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
       : t.saved.couldNotSave;
 
   return (
-    <SafeAreaView style={styles.screen} edges={['top']}>
+    <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <EditorTopBar title={t.saved.title} left onBack={() => navigation.popToTop()} />
 
       <View style={styles.statusRow}>
@@ -168,6 +169,9 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
         />
         <ActionButton icon={<ShareIcon color={colors.peri} s={19} />} label={t.common.share} onPress={share} />
       </View>
+
+      <View style={styles.spacer} />
+      <AdBanner />
 
       <Modal visible={viewerOpen} transparent animationType="fade" onRequestClose={() => setViewerOpen(false)}>
         <Pressable style={styles.viewer} onPress={() => setViewerOpen(false)}>
@@ -231,6 +235,7 @@ function ActionButton({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.ink },
+  spacer: { flex: 1, minHeight: 24 },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',

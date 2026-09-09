@@ -1,0 +1,21 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'expo.modules.admobnext'
+version = '1.0.0'
+
+android {
+  namespace "expo.modules.admobnext"
+  defaultConfig {
+    versionCode 1
+    versionName "1.0.0"
+  }
+}
+
+dependencies {
+  // GMA Next-Gen SDK. Needs minSdk 24 / compileSdk 35, both of which the
+  // expo-module-gradle-plugin defaults (24 / 36) already satisfy.
+  implementation 'com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.4.0'
+}

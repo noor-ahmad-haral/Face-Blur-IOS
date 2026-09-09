@@ -8,6 +8,7 @@ import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { useI18n } from '../i18n';
 import { ImageGlyph, CheckMark, GearIcon } from '../components/icons';
+import AdBanner from '../components/AdBanner';
 
 const appIcon = require('../../assets/images/app-icon.png');
 
@@ -115,12 +116,16 @@ export default function HomeScreen({ navigation }: Props) {
           })
         )}
       </View>
+
+      <View style={styles.spacer} />
+      <AdBanner />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.ink },
+  spacer: { flex: 1, minHeight: 24 },
   header: {
     marginTop: 12,
     marginHorizontal: 20,
