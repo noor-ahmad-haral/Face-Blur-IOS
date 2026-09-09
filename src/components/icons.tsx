@@ -166,20 +166,41 @@ export function ChevronRight({ color = '#8a95a1', s = 14 }: { color?: string; s?
   );
 }
 
-export function BackArrow({ color = '#fff' }: { color?: string }) {
+export function BackArrow({ color = '#fff', s = 20 }: { color?: string; s?: number }) {
+  const h = s * 0.7;
+  const stroke = 2.2;
+  const arm = s * 0.44;
+  // A box with only left+bottom borders is an "L"; rotating it 45deg points the
+  // vertex left. These two offsets are solved rather than eyeballed, so the
+  // vertex sits exactly on the shaft's left end and the head's centre sits
+  // exactly on the shaft's centre line — the old values left it 1.25px high
+  // and overhanging the icon's left edge.
+  const armLeft = arm * (Math.SQRT1_2 - 0.5);
+  const armTop = h / 2 - arm / 2;
   return (
-    <View style={{ width: 20, height: 14, justifyContent: 'center' }}>
-      <View style={{ position: 'absolute', left: 0, top: 6, width: 20, height: 2.5, backgroundColor: color, borderRadius: 2 }} />
+    <View style={{ width: s, height: h }}>
       <View
         style={{
           position: 'absolute',
           left: 0,
-          top: 1.5,
-          width: 9,
-          height: 9,
-          borderLeftWidth: 2.5,
-          borderBottomWidth: 2.5,
+          right: 0,
+          top: (h - stroke) / 2,
+          height: stroke,
+          backgroundColor: color,
+          borderRadius: stroke,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          left: armLeft,
+          top: armTop,
+          width: arm,
+          height: arm,
+          borderLeftWidth: stroke,
+          borderBottomWidth: stroke,
           borderColor: color,
+          borderBottomLeftRadius: stroke * 0.9,
           transform: [{ rotate: '45deg' }],
         }}
       />
