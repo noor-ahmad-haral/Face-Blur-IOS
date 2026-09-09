@@ -91,6 +91,7 @@ export type PhotoRef = {
 };
 
 export type RootStackParamList = {
+  Onboarding: undefined;
   Home: undefined;
   Settings: undefined;
   Editor: PhotoRef;
