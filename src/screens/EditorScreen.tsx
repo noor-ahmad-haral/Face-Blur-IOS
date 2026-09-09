@@ -280,7 +280,14 @@ export default function EditorScreen({ navigation, route }: Props) {
         <Pressable onPress={openEffects} style={styles.iconBtn}>
           <SlidersIcon color={colors.peri} s={20} />
         </Pressable>
-        <PillButton label={t.common.save} icon={<SaveIcon />} bg={colors.blue} onPress={save} style={styles.pill} />
+        <PillButton
+          label={t.common.save}
+          icon={<SaveIcon color={colors.onBlue} />}
+          bg={colors.blue}
+          textColor={colors.onBlue}
+          onPress={save}
+          style={styles.pill}
+        />
       </View>
 
       {saving && (

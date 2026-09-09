@@ -48,6 +48,7 @@ export default function LanguageScreen({ navigation }: Props) {
       <PillButton
         label={t.common.continue}
         bg={colors.blue}
+        textColor={colors.onBlue}
         onPress={() => navigation.navigate('Onboarding')}
         style={styles.cta}
       />

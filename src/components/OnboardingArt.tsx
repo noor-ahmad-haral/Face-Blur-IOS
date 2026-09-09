@@ -132,7 +132,7 @@ export function PrivacyArt() {
   return (
     <View style={styles.privacy}>
       <View style={styles.halo} />
-      <LockIcon peri={colors.peri} blue={colors.blue} onBtn={colors.onBtn} />
+      <LockIcon peri={colors.peri} blue={colors.blue} onBtn={colors.ink} />
     </View>
   );
 }

@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     width: 5,
     height: 5,
     borderRadius: 2.5,
-    backgroundColor: colors.blue,
+    backgroundColor: colors.peri,
   },
   thumb: {
     position: 'absolute',

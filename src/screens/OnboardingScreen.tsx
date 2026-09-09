@@ -117,6 +117,7 @@ export default function OnboardingScreen({ navigation }: Props) {
       <PillButton
         label={isLast ? t.common.getStarted : t.common.next}
         bg={colors.blue}
+        textColor={colors.onBlue}
         onPress={next}
         style={styles.cta}
       />

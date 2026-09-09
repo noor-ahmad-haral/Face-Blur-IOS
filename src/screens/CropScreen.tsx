@@ -158,7 +158,13 @@ export default function CropScreen({ navigation, route }: Props) {
 
       <View style={[styles.bottomBar, { marginBottom: Math.max(insets.bottom, 12) + 12 }]}>
         <PillButton label={t.common.cancel} outline textColor={colors.peri} onPress={() => navigation.goBack()} />
-        <PillButton label={t.common.confirm} icon={<CheckMark />} bg={colors.blue} onPress={confirm} />
+        <PillButton
+          label={t.common.confirm}
+          icon={<CheckMark color={colors.onBlue} />}
+          bg={colors.blue}
+          textColor={colors.onBlue}
+          onPress={confirm}
+        />
       </View>
     </SafeAreaView>
   );
