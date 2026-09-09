@@ -6,6 +6,7 @@ import * as MediaLibrary from 'expo-media-library';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
+import { useI18n } from '../i18n';
 import { ImageGlyph, CheckMark, GearIcon } from '../components/icons';
 
 const appIcon = require('../../assets/images/app-icon.png');
@@ -13,6 +14,7 @@ const appIcon = require('../../assets/images/app-icon.png');
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
+  const { t } = useI18n();
   const [recent, setRecent] = useState<MediaLibrary.Asset[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [denied, setDenied] = useState(false);
@@ -62,7 +64,7 @@ export default function HomeScreen({ navigation }: Props) {
         <Image source={appIcon} style={styles.logo} />
         <View style={styles.headerText}>
           <Text style={styles.title}>Blur Face</Text>
-          <Text style={styles.tagline}>Protect privacy instantly</Text>
+          <Text style={styles.tagline}>{t.home.tagline}</Text>
         </View>
         <Pressable
           onPress={() => navigation.navigate('Settings')}
@@ -80,19 +82,19 @@ export default function HomeScreen({ navigation }: Props) {
         <View style={styles.pickerIcon}>
           <ImageGlyph color={colors.peri} s={42} />
         </View>
-        <Text style={styles.pickerLabel}>Select a photo</Text>
-        <Text style={styles.pickerHint}>Tap to choose from your library</Text>
+        <Text style={styles.pickerLabel}>{t.home.selectPhoto}</Text>
+        <Text style={styles.pickerHint}>{t.home.selectPhotoHint}</Text>
       </Pressable>
 
       {/* Three most recent photos, in one row */}
-      <Text style={styles.recentLabel}>Recent</Text>
+      <Text style={styles.recentLabel}>{t.home.recent}</Text>
 
       <View style={styles.row}>
         {recent.length === 0 ? (
           <Text style={styles.empty}>
             {denied
-              ? 'Allow photo access to see your recent photos.'
-              : 'No recent photos yet.'}
+              ? t.home.allowAccess
+              : t.home.noRecent}
           </Text>
         ) : (
           recent.map((asset) => {

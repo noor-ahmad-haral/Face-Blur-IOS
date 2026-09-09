@@ -1,9 +1,10 @@
-import React from 'react';
-import { View, Text, Pressable, StyleSheet, ScrollView, Linking, Share, Alert, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Pressable, StyleSheet, ScrollView, Linking, Share, Alert, Image, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
+import { useI18n, LANGUAGES } from '../i18n';
 import EditorTopBar from '../components/EditorTopBar';
 import {
   InfoIcon,
@@ -13,6 +14,8 @@ import {
   ShieldIcon,
   DocIcon,
   ChevronRight,
+  GlobeIcon,
+  CheckMark,
 } from '../components/icons';
 
 const appIcon = require('../../assets/images/app-icon.png');
@@ -29,24 +32,24 @@ const TERMS_URL =
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 export default function SettingsScreen({ navigation }: Props) {
+  const { t, lang, setLanguage } = useI18n();
+  const [langOpen, setLangOpen] = useState(false);
+  const activeLabel = LANGUAGES.find((l) => l.code === lang)?.label ?? 'English';
   async function openUrl(url: string) {
     try {
       await Linking.openURL(url);
     } catch {
-      Alert.alert('Unable to open', 'Could not open the link on this device.');
+      Alert.alert(t.settings.unableToOpen, t.settings.unableToOpenBody);
     }
   }
 
   function aboutUs() {
-    Alert.alert(
-      APP_NAME,
-      'Blur Face detects faces in your photos entirely on your device and lets you blur them with one tap — no photo ever leaves your phone. Protect privacy before you share.'
-    );
+    Alert.alert(APP_NAME, t.settings.aboutBody);
   }
 
   function support() {
     openUrl(
-      `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Blur Face — Feedback')}`
+      `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(t.settings.feedbackSubject)}`
     );
   }
 
@@ -60,7 +63,7 @@ export default function SettingsScreen({ navigation }: Props) {
   async function shareApp() {
     try {
       await Share.share({
-        message: `Blur faces in your photos instantly with ${APP_NAME}! https://play.google.com/store/apps/details?id=${PACKAGE}`,
+        message: `${t.settings.shareMessage} https://play.google.com/store/apps/details?id=${PACKAGE}`,
       });
     } catch {
       // user dismissed — no-op
@@ -69,32 +72,44 @@ export default function SettingsScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <EditorTopBar title="Settings" left onBack={() => navigation.goBack()} />
+      <EditorTopBar title={t.settings.title} left onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Language sits on its own: it changes the app, the rows below only
+            open information. */}
+        <View style={styles.group}>
+          <Row
+            icon={<GlobeIcon color={colors.peri} s={22} />}
+            title={t.settings.language}
+            subtitle={activeLabel}
+            onPress={() => setLangOpen(true)}
+            last
+          />
+        </View>
+
         <View style={styles.group}>
           <Row
             icon={<InfoIcon color={colors.peri} s={22} />}
-            title="About Us"
-            subtitle={`Learn more about the ${APP_NAME} app.`}
+            title={t.settings.aboutUs}
+            subtitle={t.settings.aboutUsSub}
             onPress={aboutUs}
           />
           <Row
             icon={<MailIcon color={colors.peri} s={22} />}
-            title="Customer Support"
-            subtitle="Tell us what you'd like to see, or report a bug."
+            title={t.settings.support}
+            subtitle={t.settings.supportSub}
             onPress={support}
           />
           <Row
             icon={<ThumbsUpIcon color={colors.peri} s={22} />}
-            title="Rate Us"
-            subtitle="Enjoying the app? Please support it with 5 stars."
+            title={t.settings.rateUs}
+            subtitle={t.settings.rateUsSub}
             onPress={rateUs}
           />
           <Row
             icon={<ShareIcon color={colors.peri} s={22} />}
-            title="Share"
-            subtitle="Share Blur Face with your friends."
+            title={t.settings.shareApp}
+            subtitle={t.settings.shareAppSub}
             onPress={shareApp}
           />
         </View>
@@ -102,14 +117,14 @@ export default function SettingsScreen({ navigation }: Props) {
         <View style={styles.group}>
           <Row
             icon={<ShieldIcon color={colors.peri} s={22} />}
-            title="Privacy Policy"
-            subtitle="Read the Privacy Policy."
+            title={t.settings.privacy}
+            subtitle={t.settings.privacySub}
             onPress={() => openUrl(PRIVACY_URL)}
           />
           <Row
             icon={<DocIcon color={colors.peri} s={22} />}
-            title="Terms of Service"
-            subtitle="Read the Terms and Conditions."
+            title={t.settings.terms}
+            subtitle={t.settings.termsSub}
             onPress={() => openUrl(TERMS_URL)}
             last
           />
@@ -118,9 +133,37 @@ export default function SettingsScreen({ navigation }: Props) {
         <View style={styles.about}>
           <Image source={appIcon} style={styles.aboutIcon} />
           <Text style={styles.aboutName}>{APP_NAME}</Text>
-          <Text style={styles.aboutVersion}>Version {APP_VERSION}</Text>
+          <Text style={styles.aboutVersion}>{t.settings.version(APP_VERSION)}</Text>
         </View>
       </ScrollView>
+
+      <Modal visible={langOpen} transparent animationType="fade" onRequestClose={() => setLangOpen(false)}>
+        <Pressable style={styles.langBackdrop} onPress={() => setLangOpen(false)}>
+          <Pressable style={styles.langCard} onPress={() => {}}>
+            <Text style={styles.langTitle}>{t.settings.language}</Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {LANGUAGES.map((l) => {
+                const active = l.code === lang;
+                return (
+                  <Pressable
+                    key={l.code}
+                    onPress={() => {
+                      setLanguage(l.code);
+                      setLangOpen(false);
+                    }}
+                    style={({ pressed }) => [styles.langRow, pressed && styles.rowPressed]}
+                  >
+                    {/* Each language is written in its own script — someone
+                        looking for theirs may not read the current one. */}
+                    <Text style={[styles.langLabel, active && styles.langLabelActive]}>{l.label}</Text>
+                    {active ? <CheckMark color={colors.peri} s={16} /> : null}
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -155,6 +198,37 @@ function Row({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.ink },
+  langBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 28,
+  },
+  langCard: {
+    width: '100%',
+    maxHeight: '75%',
+    borderRadius: 18,
+    backgroundColor: colors.card,
+    paddingVertical: 8,
+  },
+  langTitle: {
+    color: colors.white,
+    fontWeight: '700',
+    fontSize: 17,
+    paddingHorizontal: 18,
+    paddingTop: 12,
+    paddingBottom: 10,
+  },
+  langRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+  },
+  langLabel: { color: colors.white, fontSize: 16 },
+  langLabelActive: { color: colors.peri, fontWeight: '700' },
   content: { paddingHorizontal: 16, paddingBottom: 40 },
   group: {
     marginTop: 16,

@@ -16,6 +16,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList, BlurRegion, EffectSettings } from '../navigation/types';
 import { DEFAULT_EFFECTS } from '../navigation/types';
 import { colors } from '../theme/colors';
+import { useI18n } from '../i18n';
 import EditorTopBar from '../components/EditorTopBar';
 import PhotoBackdrop from '../components/PhotoBackdrop';
 import ThumbChip from '../components/ThumbChip';
@@ -40,6 +41,7 @@ const MOCK_FACES: BlurRegion[] = [
 
 export default function EditorScreen({ navigation, route }: Props) {
   const { photoUri, mock } = route.params;
+  const { t } = useI18n();
   const { width: winW, height: winH } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
@@ -67,7 +69,7 @@ export default function EditorScreen({ navigation, route }: Props) {
         setRegions(result.regions);
       } catch (e) {
         if (cancelled) return;
-        setError('Face detection unavailable. Add blur regions manually.');
+        setError(t.editor.detectionUnavailable);
         setDisplayUri(photoUri);
       } finally {
         if (!cancelled) setLoading(false);
@@ -119,7 +121,7 @@ export default function EditorScreen({ navigation, route }: Props) {
         regionsCount: regions.filter((r) => r.blurred).length,
       });
     } catch (e) {
-      Alert.alert('Save failed', 'Could not render the blurred image. Please try again.');
+      Alert.alert(t.editor.saveFailedTitle, t.editor.saveFailedBody);
     } finally {
       setSaving(false);
     }
@@ -145,12 +147,12 @@ export default function EditorScreen({ navigation, route }: Props) {
   }
 
   const facesLabel = loading
-    ? 'Detecting faces…'
+    ? t.editor.detectingFaces
     : error
-    ? 'Faces'
+    ? t.editor.faces
     : regions.length === 0
-    ? 'No faces found'
-    : `Faces Detected (${regions.length})`;
+    ? t.editor.noFaces
+    : t.editor.facesDetected(regions.length);
 
   function regionBox(r: BlurRegion) {
     return {
@@ -197,7 +199,7 @@ export default function EditorScreen({ navigation, route }: Props) {
               {loading ? (
                 <>
                   <ActivityIndicator color={colors.peri} size="large" />
-                  <Text style={styles.loadingText}>Finding faces…</Text>
+                  <Text style={styles.loadingText}>{t.editor.findingFaces}</Text>
                 </>
               ) : (
                 displayUri && (
@@ -239,7 +241,7 @@ export default function EditorScreen({ navigation, route }: Props) {
         <Text style={styles.facesLabel}>{facesLabel}</Text>
         {error ? <Text style={styles.hint}>{error}</Text> : null}
         {!loading && !error && regions.length === 0 ? (
-          <Text style={styles.hint}>Tap + to add a blur region by hand.</Text>
+          <Text style={styles.hint}>{t.editor.addByHand}</Text>
         ) : null}
 
         <ScrollView
@@ -270,7 +272,7 @@ export default function EditorScreen({ navigation, route }: Props) {
       </ScrollView>
 
       <View style={[styles.bottomBar, { marginBottom: Math.max(insets.bottom, 12) + 12 }]}>
-        <PillButton label="Blur all" icon={<GridDots />} bg={colors.peri} onPress={blurAll} style={styles.pill} />
+        <PillButton label={t.editor.blurAll} icon={<GridDots />} bg={colors.peri} onPress={blurAll} style={styles.pill} />
         <Pressable onPress={clearAll} style={styles.iconBtn}>
           <GridDots color={colors.peri} size={15} />
           <View style={styles.clearStrike} />
@@ -278,13 +280,13 @@ export default function EditorScreen({ navigation, route }: Props) {
         <Pressable onPress={openEffects} style={styles.iconBtn}>
           <SlidersIcon color={colors.peri} s={20} />
         </Pressable>
-        <PillButton label="Save" icon={<SaveIcon />} bg={colors.blue} onPress={save} style={styles.pill} />
+        <PillButton label={t.common.save} icon={<SaveIcon />} bg={colors.blue} onPress={save} style={styles.pill} />
       </View>
 
       {saving && (
         <View style={styles.savingOverlay}>
           <ActivityIndicator color={colors.peri} size="large" />
-          <Text style={styles.loadingText}>Saving…</Text>
+          <Text style={styles.loadingText}>{t.editor.saving}</Text>
         </View>
       )}
     </SafeAreaView>

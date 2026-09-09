@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from './types';
+import LanguageScreen from '../screens/LanguageScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -37,9 +38,10 @@ export default function RootNavigator() {
   return (
     <NavigationContainer theme={navTheme}>
       <Stack.Navigator
-        initialRouteName={seen ? 'Home' : 'Onboarding'}
+        initialRouteName={seen ? 'Home' : 'LanguageSelect'}
         screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.ink } }}
       >
+        <Stack.Screen name="LanguageSelect" component={LanguageScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />

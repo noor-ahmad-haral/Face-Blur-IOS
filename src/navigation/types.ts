@@ -91,6 +91,7 @@ export type PhotoRef = {
 };
 
 export type RootStackParamList = {
+  LanguageSelect: undefined;
   Onboarding: undefined;
   Home: undefined;
   Settings: undefined;

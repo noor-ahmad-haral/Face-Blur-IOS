@@ -4,6 +4,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
+import { useI18n } from '../i18n';
 import EditorTopBar from '../components/EditorTopBar';
 import PhotoBackdrop from '../components/PhotoBackdrop';
 import PillButton from '../components/PillButton';
@@ -18,6 +19,7 @@ type Corner = 'tl' | 'tr' | 'bl' | 'br';
 
 export default function CropScreen({ navigation, route }: Props) {
   const { photoUri, mock, onConfirm } = route.params;
+  const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const [panelSize, setPanelSize] = useState({ width: 0, height: 0 });
   const [box, setBox] = useState<Box>({ x: 40, y: 80, w: 220, h: 180 });
@@ -121,7 +123,7 @@ export default function CropScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <EditorTopBar title="Crop" left onBack={() => navigation.goBack()} />
+      <EditorTopBar title={t.crop.title} left onBack={() => navigation.goBack()} />
 
       <View style={styles.panel} onLayout={onPanelLayout}>
         <PhotoBackdrop photoUri={photoUri} mock={mock} />
@@ -155,8 +157,8 @@ export default function CropScreen({ navigation, route }: Props) {
       </View>
 
       <View style={[styles.bottomBar, { marginBottom: Math.max(insets.bottom, 12) + 12 }]}>
-        <PillButton label="Cancel" outline textColor={colors.peri} onPress={() => navigation.goBack()} />
-        <PillButton label="Confirm" icon={<CheckMark />} bg={colors.blue} onPress={confirm} />
+        <PillButton label={t.common.cancel} outline textColor={colors.peri} onPress={() => navigation.goBack()} />
+        <PillButton label={t.common.confirm} icon={<CheckMark />} bg={colors.blue} onPress={confirm} />
       </View>
     </SafeAreaView>
   );

@@ -16,6 +16,7 @@ import * as MediaLibrary from 'expo-media-library';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
+import { useI18n } from '../i18n';
 import EditorTopBar from '../components/EditorTopBar';
 import { CheckMark, ShareIcon, TrashIcon, ImageGlyph } from '../components/icons';
 
@@ -26,6 +27,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'SavedFiles'>;
 
 export default function SavedFilesScreen({ navigation, route }: Props) {
   const { photoUri, fileName } = route.params;
+  const { t } = useI18n();
 
   const [asset, setAsset] = useState<MediaLibrary.Asset | null>(null);
   const [status, setStatus] = useState<'saving' | 'saved' | 'error'>('saving');
@@ -81,7 +83,7 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
           // ignore
         }
       } else {
-        Alert.alert('Thanks for your feedback', "We'll keep improving Blur Face!");
+        Alert.alert(t.saved.thanksTitle, t.saved.thanksBody);
       }
     }, 280);
   }
@@ -91,14 +93,14 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
     if (await Sharing.isAvailableAsync()) {
       await Sharing.shareAsync(photoUri);
     } else {
-      Alert.alert('Sharing unavailable', 'Sharing is not available on this device.');
+      Alert.alert(t.saved.sharingUnavailableTitle, t.saved.sharingUnavailableBody);
     }
   }
 
   function confirmDelete() {
-    Alert.alert('Delete photo', 'Remove this blurred photo from your gallery?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: remove },
+    Alert.alert(t.saved.deleteTitle, t.saved.deleteBody, [
+      { text: t.common.cancel, style: 'cancel' },
+      { text: t.common.delete, style: 'destructive', onPress: remove },
     ]);
   }
 
@@ -112,11 +114,15 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
   }
 
   const statusText =
-    status === 'saving' ? 'Saving…' : status === 'saved' ? 'Saved to your photos' : 'Could not save';
+    status === 'saving'
+      ? t.saved.saving
+      : status === 'saved'
+      ? t.saved.savedToPhotos
+      : t.saved.couldNotSave;
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <EditorTopBar title="Saved" left onBack={() => navigation.popToTop()} />
+      <EditorTopBar title={t.saved.title} left onBack={() => navigation.popToTop()} />
 
       <View style={styles.statusRow}>
         <View style={[styles.checkCircle, status === 'error' && styles.errorCircle]}>
@@ -140,9 +146,9 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
             <Text numberOfLines={1} style={styles.fileName}>
               {fileName}
             </Text>
-            <Text style={styles.fileMeta}>Blurred photo</Text>
+            <Text style={styles.fileMeta}>{t.saved.blurredPhoto}</Text>
             <Text numberOfLines={1} style={styles.fileMeta}>
-              {asset ? 'Saved to Gallery' : status === 'error' ? 'Not saved' : '…'}
+              {asset ? t.saved.savedToGallery : status === 'error' ? t.saved.notSaved : '…'}
             </Text>
           </View>
         </View>
@@ -151,16 +157,16 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
       <View style={styles.actions}>
         <ActionButton
           icon={<ImageGlyph color={colors.peri} s={19} />}
-          label="View"
+          label={t.common.view}
           onPress={() => photoUri && setViewerOpen(true)}
         />
         <ActionButton
           icon={<TrashIcon color="#ff6b6b" s={18} />}
-          label="Delete"
+          label={t.common.delete}
           color="#ff6b6b"
           onPress={confirmDelete}
         />
-        <ActionButton icon={<ShareIcon color={colors.peri} s={19} />} label="Share" onPress={share} />
+        <ActionButton icon={<ShareIcon color={colors.peri} s={19} />} label={t.common.share} onPress={share} />
       </View>
 
       <Modal visible={viewerOpen} transparent animationType="fade" onRequestClose={() => setViewerOpen(false)}>
@@ -168,7 +174,7 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
           {photoUri ? (
             <Image source={{ uri: photoUri }} resizeMode="contain" style={styles.viewerImage} />
           ) : null}
-          <Text style={styles.viewerHint}>Tap anywhere to close</Text>
+          <Text style={styles.viewerHint}>{t.saved.tapToClose}</Text>
         </Pressable>
       </Modal>
 
@@ -179,7 +185,7 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
               <Image source={appIcon} style={styles.rateLogo} />
             </View>
             <Text style={styles.rateText}>
-              We're a small team dedicated to building great apps. Your 5-star review would help us a lot!
+              {t.saved.rateText}
             </Text>
             <View style={styles.starsRow}>
               {[1, 2, 3, 4, 5].map((i) => (
@@ -191,7 +197,7 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
               ))}
             </View>
             <Pressable onPress={() => setShowRate(false)} hitSlop={8}>
-              <Text style={styles.rateLater}>Not now</Text>
+              <Text style={styles.rateLater}>{t.common.notNow}</Text>
             </Pressable>
           </Pressable>
         </Pressable>

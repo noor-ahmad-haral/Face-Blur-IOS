@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
+import { useI18n } from '../i18n';
 import PillButton from '../components/PillButton';
 import { CheckMark } from '../components/icons';
 import { DetectArt, PrivacyArt } from '../components/OnboardingArt';
@@ -20,22 +21,24 @@ import { markOnboardingSeen } from '../lib/onboarding';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
-const PAGES = [
-  {
-    key: 'detect',
-    art: <DetectArt />,
-    title: 'Hide faces in one tap',
-    points: ['Every face found automatically', 'Blur, pixelate or emoji', 'Or draw your own area'],
-  },
-  {
-    key: 'privacy',
-    art: <PrivacyArt />,
-    title: 'Private by design',
-    points: ['Runs entirely on your phone', 'Nothing is ever uploaded', 'Metadata is stripped on save'],
-  },
-];
-
 export default function OnboardingScreen({ navigation }: Props) {
+  const { t } = useI18n();
+  // Built here rather than at module scope so the copy follows the active
+  // language instead of being frozen at import time.
+  const PAGES = [
+    {
+      key: 'detect',
+      art: <DetectArt />,
+      title: t.onboarding.title1,
+      points: [t.onboarding.point1a, t.onboarding.point1b, t.onboarding.point1c],
+    },
+    {
+      key: 'privacy',
+      art: <PrivacyArt />,
+      title: t.onboarding.title2,
+      points: [t.onboarding.point2a, t.onboarding.point2b, t.onboarding.point2c],
+    },
+  ];
   const { width: winW, height: winH } = useWindowDimensions();
   // Shrink the artwork on short windows (landscape, foldables, split screen) so
   // the copy and the button still fit without scrolling.
@@ -68,7 +71,7 @@ export default function OnboardingScreen({ navigation }: Props) {
       <View style={styles.topBar}>
         {!isLast && (
           <Pressable onPress={finish} hitSlop={12} style={({ pressed }) => pressed && { opacity: 0.7 }}>
-            <Text style={styles.skip}>Skip</Text>
+            <Text style={styles.skip}>{t.common.skip}</Text>
           </Pressable>
         )}
       </View>
@@ -112,7 +115,7 @@ export default function OnboardingScreen({ navigation }: Props) {
       </View>
 
       <PillButton
-        label={isLast ? 'Get Started' : 'Next'}
+        label={isLast ? t.common.getStarted : t.common.next}
         bg={colors.blue}
         onPress={next}
         style={styles.cta}

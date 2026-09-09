@@ -12,6 +12,7 @@ import {
   MAX_PIXEL_SIZE,
 } from '../navigation/types';
 import { colors } from '../theme/colors';
+import { useI18n } from '../i18n';
 import Segmented from '../components/Segmented';
 import Slider from '../components/Slider';
 import PillButton from '../components/PillButton';
@@ -25,6 +26,7 @@ const EMOJI_GAP = 10;
 
 export default function EffectsScreen({ navigation, route }: Props) {
   const { onApply } = route.params;
+  const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const { width: winW } = useWindowDimensions();
   const [settings, setSettings] = useState<EffectSettings>(route.params.settings);
@@ -51,7 +53,6 @@ export default function EffectsScreen({ navigation, route }: Props) {
   // Blur and pixelate share the shape control and the slider, but each keeps
   // its own amount: blur strength vs. mosaic block size.
   const isPixelate = settings.kind === 'pixelate';
-  const noun = isPixelate ? 'Pixelate' : 'Blur';
   const amount = isPixelate ? settings.pixelSize : settings.intensity;
   const amountMin = isPixelate ? MIN_PIXEL_SIZE : MIN_INTENSITY;
   const amountMax = isPixelate ? MAX_PIXEL_SIZE : MAX_INTENSITY;
@@ -65,20 +66,20 @@ export default function EffectsScreen({ navigation, route }: Props) {
         <View style={styles.grabber} />
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-          <Text style={styles.heading}>Effect</Text>
+          <Text style={styles.heading}>{t.effects.effect}</Text>
           <Segmented
             value={settings.kind}
             onChange={(kind) => update({ kind })}
             options={[
-              { value: 'blur', label: 'Blur' },
-              { value: 'pixelate', label: 'Pixelate' },
-              { value: 'emoji', label: 'Emoji' },
+              { value: 'blur', label: t.effects.blur },
+              { value: 'pixelate', label: t.effects.pixelate },
+              { value: 'emoji', label: t.effects.emoji },
             ]}
           />
 
           {settings.kind === 'emoji' ? (
             <>
-              <Text style={styles.heading}>Emoji</Text>
+              <Text style={styles.heading}>{t.effects.emoji}</Text>
               <View style={styles.emojiRow}>
                 {EMOJI_CHOICES.map((emoji) => {
                   const active = emoji === settings.emoji;
@@ -101,17 +102,17 @@ export default function EffectsScreen({ navigation, route }: Props) {
             </>
           ) : (
             <>
-              <Text style={styles.heading}>{noun} shape</Text>
+              <Text style={styles.heading}>{isPixelate ? t.effects.pixelateShape : t.effects.blurShape}</Text>
               <Segmented
                 value={settings.shape}
                 onChange={(shape) => update({ shape })}
                 options={[
-                  { value: 'rect', label: 'Rectangle' },
-                  { value: 'oval', label: 'Oval' },
+                  { value: 'rect', label: t.effects.rectangle },
+                  { value: 'oval', label: t.effects.oval },
                 ]}
               />
 
-              <Text style={styles.heading}>{isPixelate ? 'Pixelate size' : 'Blur intensity'}</Text>
+              <Text style={styles.heading}>{isPixelate ? t.effects.pixelateSize : t.effects.blurIntensity}</Text>
               <View style={styles.sliderRow}>
                 <Text style={styles.value}>{amount}</Text>
                 <View style={styles.sliderFlex}>
@@ -125,10 +126,10 @@ export default function EffectsScreen({ navigation, route }: Props) {
 
         <View style={styles.actions}>
           <Pressable onPress={reset} hitSlop={10} style={({ pressed }) => pressed && { opacity: 0.7 }}>
-            <Text style={styles.reset}>Reset</Text>
+            <Text style={styles.reset}>{t.common.reset}</Text>
           </Pressable>
           <PillButton
-            label="Confirm"
+            label={t.common.confirm}
             icon={<CheckMark />}
             bg={colors.blue}
             onPress={() => navigation.goBack()}

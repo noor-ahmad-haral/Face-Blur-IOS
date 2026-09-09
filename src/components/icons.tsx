@@ -464,3 +464,33 @@ export function SlidersIcon({ color = '#fff', s = 22 }: { color?: string; s?: nu
     </View>
   );
 }
+
+export function GlobeIcon({ color = '#fff', s = 22 }: { color?: string; s?: number }) {
+  return (
+    <View
+      style={{
+        width: s,
+        height: s,
+        borderRadius: s / 2,
+        borderWidth: 2,
+        borderColor: color,
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+      }}
+    >
+      {/* equator */}
+      <View style={{ position: 'absolute', left: 0, right: 0, height: 2, backgroundColor: color }} />
+      {/* meridian — an ellipse read as a vertical arc */}
+      <View
+        style={{
+          width: s * 0.46,
+          height: s - 4,
+          borderRadius: s * 0.23,
+          borderWidth: 2,
+          borderColor: color,
+        }}
+      />
+    </View>
+  );
+}
