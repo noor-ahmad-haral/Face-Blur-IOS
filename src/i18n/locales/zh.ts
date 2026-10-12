@@ -10,9 +10,6 @@ const zh: Translations = {
     tagline: '立即保护隐私',
     selectPhoto: '选择照片',
     selectPhotoHint: '点按从相册中选择',
-    recent: '最近',
-    allowAccess: '允许访问照片以查看最近的照片。',
-    noRecent: '暂无最近的照片。',
   },
   editor: {
     detectingFaces: '正在检测人脸…',

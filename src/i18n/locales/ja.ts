@@ -10,9 +10,6 @@ const ja: Translations = {
     tagline: 'すぐにプライバシーを保護',
     selectPhoto: '写真を選択',
     selectPhotoHint: 'タップしてライブラリから選択',
-    recent: '最近の写真',
-    allowAccess: '最近の写真を表示するには写真へのアクセスを許可してください。',
-    noRecent: '最近の写真はまだありません。',
   },
   editor: {
     detectingFaces: '顔を検出中…',

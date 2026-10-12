@@ -10,9 +10,6 @@ const hi: Translations = {
     tagline: 'तुरंत निजता सुरक्षित करें',
     selectPhoto: 'फ़ोटो चुनें',
     selectPhotoHint: 'अपनी गैलरी से चुनने के लिए टैप करें',
-    recent: 'हाल की',
-    allowAccess: 'हाल की फ़ोटो देखने के लिए फ़ोटो एक्सेस दें।',
-    noRecent: 'अभी कोई हाल की फ़ोटो नहीं।',
   },
   editor: {
     detectingFaces: 'चेहरे पहचाने जा रहे हैं…',

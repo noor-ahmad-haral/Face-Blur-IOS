@@ -20,9 +20,6 @@ const en = {
     tagline: 'Protect privacy instantly',
     selectPhoto: 'Select a photo',
     selectPhotoHint: 'Tap to choose from your library',
-    recent: 'Recent',
-    allowAccess: 'Allow photo access to see your recent photos.',
-    noRecent: 'No recent photos yet.',
   },
   editor: {
     detectingFaces: 'Detecting faces…',

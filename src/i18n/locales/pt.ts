@@ -10,9 +10,6 @@ const pt: Translations = {
     tagline: 'Proteja sua privacidade na hora',
     selectPhoto: 'Selecione uma foto',
     selectPhotoHint: 'Toque para escolher da sua galeria',
-    recent: 'Recentes',
-    allowAccess: 'Permita o acesso para ver suas fotos recentes.',
-    noRecent: 'Nenhuma foto recente ainda.',
   },
   editor: {
     detectingFaces: 'Detectando rostos…',

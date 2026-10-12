@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   Linking,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Sharing from 'expo-sharing';
@@ -45,7 +46,9 @@ export default function SavedFilesScreen({ navigation, route }: Props) {
         return;
       }
       try {
-        const perm = await MediaLibrary.requestPermissionsAsync();
+        // Android only needs write access to save; asking for read access would
+        // pull in READ_MEDIA_IMAGES, which Play's photo/video policy disallows.
+        const perm = await MediaLibrary.requestPermissionsAsync(Platform.OS === 'android');
         if (!perm.granted) {
           if (!cancelled) setStatus('error');
           return;

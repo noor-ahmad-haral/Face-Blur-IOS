@@ -10,9 +10,6 @@ const de: Translations = {
     tagline: 'Schütze deine Privatsphäre sofort',
     selectPhoto: 'Foto auswählen',
     selectPhotoHint: 'Tippe, um aus deiner Galerie zu wählen',
-    recent: 'Zuletzt',
-    allowAccess: 'Erlaube den Fotozugriff, um deine letzten Fotos zu sehen.',
-    noRecent: 'Noch keine Fotos vorhanden.',
   },
   editor: {
     detectingFaces: 'Gesichter werden erkannt…',

@@ -10,9 +10,6 @@ const ar: Translations = {
     tagline: 'احمِ خصوصيتك فورًا',
     selectPhoto: 'اختر صورة',
     selectPhotoHint: 'اضغط للاختيار من معرضك',
-    recent: 'الأخيرة',
-    allowAccess: 'اسمح بالوصول إلى الصور لعرض صورك الأخيرة.',
-    noRecent: 'لا توجد صور حديثة بعد.',
   },
   editor: {
     detectingFaces: 'جارٍ اكتشاف الوجوه…',

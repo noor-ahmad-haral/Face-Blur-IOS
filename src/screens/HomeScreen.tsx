@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibrary from 'expo-media-library';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { useI18n } from '../i18n';
-import { ImageGlyph, CheckMark, GearIcon } from '../components/icons';
+import { ImageGlyph, GearIcon } from '../components/icons';
 import AdBanner from '../components/AdBanner';
 
 const appIcon = require('../../assets/images/app-icon.png');
@@ -16,27 +15,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
   const { t } = useI18n();
-  const [recent, setRecent] = useState<MediaLibrary.Asset[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [denied, setDenied] = useState(false);
-
-  // Load the 3 most recent photos from the device's library.
-  useEffect(() => {
-    (async () => {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== 'granted') {
-        setDenied(true);
-        return;
-      }
-      const { assets } = await MediaLibrary.getAssetsAsync({
-        mediaType: MediaLibrary.MediaType.photo,
-        sortBy: [MediaLibrary.SortBy.creationTime],
-        first: 3,
-      });
-      setRecent(assets);
-    })();
-  }, []);
-
   async function pickFromLibrary() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
@@ -44,18 +22,6 @@ export default function HomeScreen({ navigation }: Props) {
     });
     if (result.canceled || !result.assets?.length) return;
     navigation.navigate('Editor', { photoUri: result.assets[0].uri });
-  }
-
-  async function openRecent(asset: MediaLibrary.Asset) {
-    setSelectedId(asset.id);
-    // Resolve a usable file uri for the editor (Android can return a content:// uri).
-    let uri = asset.uri;
-    try {
-      const info = await MediaLibrary.getAssetInfoAsync(asset);
-      if (info.localUri) uri = info.localUri;
-    } catch {}
-    navigation.navigate('Editor', { photoUri: uri });
-    setSelectedId(null);
   }
 
   return (
@@ -86,36 +52,6 @@ export default function HomeScreen({ navigation }: Props) {
         <Text style={styles.pickerLabel}>{t.home.selectPhoto}</Text>
         <Text style={styles.pickerHint}>{t.home.selectPhotoHint}</Text>
       </Pressable>
-
-      {/* Three most recent photos, in one row */}
-      <Text style={styles.recentLabel}>{t.home.recent}</Text>
-
-      <View style={styles.row}>
-        {recent.length === 0 ? (
-          <Text style={styles.empty}>
-            {denied
-              ? t.home.allowAccess
-              : t.home.noRecent}
-          </Text>
-        ) : (
-          recent.map((asset) => {
-            const isSelected = selectedId === asset.id;
-            return (
-              <Pressable key={asset.id} onPress={() => openRecent(asset)} style={styles.tileWrap}>
-                <Image
-                  source={{ uri: asset.uri }}
-                  style={[styles.tile, isSelected && styles.tileSelected]}
-                />
-                {isSelected && (
-                  <View style={styles.checkBadge}>
-                    <CheckMark color={colors.onBtn} s={11} />
-                  </View>
-                )}
-              </Pressable>
-            );
-          })
-        )}
-      </View>
 
       <View style={styles.spacer} />
       <AdBanner />
@@ -186,45 +122,5 @@ const styles = StyleSheet.create({
     marginTop: 6,
     color: colors.mutedD,
     fontSize: 14,
-  },
-  recentLabel: {
-    marginTop: 32,
-    marginLeft: 24,
-    color: colors.mutedD,
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  row: {
-    marginTop: 10,
-    marginHorizontal: 24,
-    flexDirection: 'row',
-    gap: 10,
-  },
-  empty: {
-    color: colors.mutedD,
-    fontSize: 14,
-    paddingVertical: 20,
-  },
-  tileWrap: { flex: 1 },
-  tile: {
-    width: '100%',
-    aspectRatio: 1,
-    borderRadius: 12,
-    backgroundColor: colors.chip,
-  },
-  tileSelected: {
-    borderWidth: 3,
-    borderColor: colors.peri,
-  },
-  checkBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: colors.peri,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

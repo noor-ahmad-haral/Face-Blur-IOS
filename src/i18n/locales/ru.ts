@@ -10,9 +10,6 @@ const ru: Translations = {
     tagline: 'Мгновенная защита приватности',
     selectPhoto: 'Выберите фото',
     selectPhotoHint: 'Нажмите, чтобы выбрать из галереи',
-    recent: 'Недавние',
-    allowAccess: 'Разрешите доступ к фото, чтобы увидеть недавние снимки.',
-    noRecent: 'Недавних фото пока нет.',
   },
   editor: {
     detectingFaces: 'Поиск лиц…',

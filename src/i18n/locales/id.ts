@@ -10,9 +10,6 @@ const id: Translations = {
     tagline: 'Lindungi privasi seketika',
     selectPhoto: 'Pilih foto',
     selectPhotoHint: 'Ketuk untuk memilih dari galeri',
-    recent: 'Terbaru',
-    allowAccess: 'Izinkan akses foto untuk melihat foto terbaru Anda.',
-    noRecent: 'Belum ada foto terbaru.',
   },
   editor: {
     detectingFaces: 'Mendeteksi wajah…',

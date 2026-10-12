@@ -10,9 +10,6 @@ const ur: Translations = {
     tagline: 'فوری طور پر رازداری محفوظ کریں',
     selectPhoto: 'تصویر منتخب کریں',
     selectPhotoHint: 'اپنی گیلری سے منتخب کرنے کے لیے ٹیپ کریں',
-    recent: 'حالیہ',
-    allowAccess: 'حالیہ تصاویر دیکھنے کے لیے تصویر تک رسائی دیں۔',
-    noRecent: 'ابھی کوئی حالیہ تصویر نہیں۔',
   },
   editor: {
     detectingFaces: 'چہرے پہچانے جا رہے ہیں…',
