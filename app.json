@@ -9,6 +9,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.blurface.app",
+      "appleTeamId": "DQYN873AY2",
       "buildNumber": "2",
       "appStoreUrl": "https://apps.apple.com/app/id6831553194",
       "config": {
