@@ -113,12 +113,12 @@ export function DetectArt() {
       </View>
 
       <View style={{ position: 'absolute', left: HEAD_RIGHT_X, top: HEAD_TOP }}>
-        {/* Android needs experimentalBlurMethod, or BlurView quietly degrades
+        {/* Android needs blurMethod, or BlurView quietly degrades
             to a plain translucent view and the face stays readable. */}
         <BlurView
           intensity={85}
           tint="default"
-          experimentalBlurMethod="dimezisBlurView"
+          blurMethod="dimezisBlurView"
           style={{ width: HEAD, height: HEAD, borderRadius: 4, overflow: 'hidden' }}
         />
         <Badge n={2} style={{ left: HEAD - 9, top: -9 }} />

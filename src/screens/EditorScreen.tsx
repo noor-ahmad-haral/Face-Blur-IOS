@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
   Alert,
 } from 'react-native';
+import type { ViewInstance } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -52,7 +53,7 @@ export default function EditorScreen({ navigation, route }: Props) {
   const [loading, setLoading] = useState<boolean>(!!photoUri);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const shotRef = useRef<View>(null);
+  const shotRef = useRef<ViewInstance>(null);
 
   // Run on-device face detection whenever a real photo is opened.
   useEffect(() => {
@@ -338,7 +339,7 @@ const styles = StyleSheet.create({
   },
   captureBox: { position: 'absolute', left: -10000, top: 0 },
   savingOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(14,19,24,0.7)',
     alignItems: 'center',
     justifyContent: 'center',

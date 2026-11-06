@@ -6,9 +6,6 @@
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "splash": {
-      "backgroundColor": "#0E1318"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.blurface.app"
@@ -36,6 +33,12 @@
     },
     "plugins": [
       "./plugins/withLargeScreenSupport",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0E1318"
+        }
+      ],
       [
         "expo-media-library",
         {

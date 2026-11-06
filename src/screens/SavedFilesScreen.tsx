@@ -13,7 +13,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Sharing from 'expo-sharing';
-import * as MediaLibrary from 'expo-media-library';
+// The SDK 58 entry point is the new class-based API; these calls live in /legacy.
+import * as MediaLibrary from 'expo-media-library/legacy';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';

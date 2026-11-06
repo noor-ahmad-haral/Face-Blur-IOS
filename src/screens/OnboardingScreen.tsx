@@ -9,6 +9,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
+import type { ScrollViewInstance } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -44,7 +45,7 @@ export default function OnboardingScreen({ navigation }: Props) {
   // the copy and the button still fit without scrolling.
   const artH = Math.min(250, Math.max(140, Math.round(winH * 0.3)));
   const [page, setPage] = useState(0);
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const isLast = page === PAGES.length - 1;
 
   async function finish() {
