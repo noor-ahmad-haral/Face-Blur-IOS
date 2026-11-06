@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView, Linking, Share, Alert, Image, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
@@ -17,13 +18,14 @@ import {
   GlobeIcon,
   CheckMark,
 } from '../components/icons';
+import { APP_STORE_URL, openWriteReview } from '../lib/appStore';
 
 const appIcon = require('../../assets/images/app-icon.png');
 
 const APP_NAME = 'Blur Face';
-const APP_VERSION = '1.0.0';
+// The version from app.json, so this label never drifts from the real build.
+const APP_VERSION = Constants.expoConfig?.version ?? '';
 const SUPPORT_EMAIL = 'itsezactually@gmail.com';
-const PACKAGE = 'com.blurface.app';
 const PRIVACY_URL =
   'https://docs.google.com/document/d/1_w7saPWhGFX5vB_9qPK6N8kqCZAbWV-j6OlcSOIQGcM/edit?usp=sharing';
 const TERMS_URL =
@@ -54,16 +56,17 @@ export default function SettingsScreen({ navigation }: Props) {
   }
 
   async function rateUs() {
-    const market = `market://details?id=${PACKAGE}`;
-    const web = `https://play.google.com/store/apps/details?id=${PACKAGE}`;
-    const canMarket = await Linking.canOpenURL(market);
-    openUrl(canMarket ? market : web);
+    try {
+      await openWriteReview();
+    } catch {
+      Alert.alert(t.settings.unableToOpen, t.settings.unableToOpenBody);
+    }
   }
 
   async function shareApp() {
     try {
       await Share.share({
-        message: `${t.settings.shareMessage} https://play.google.com/store/apps/details?id=${PACKAGE}`,
+        message: APP_STORE_URL ? `${t.settings.shareMessage} ${APP_STORE_URL}` : t.settings.shareMessage,
       });
     } catch {
       // user dismissed — no-op

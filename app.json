@@ -2,13 +2,18 @@
   "expo": {
     "name": "Blur Face",
     "slug": "blur-face",
-    "version": "2.4.1",
+    "version": "1.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.blurface.app"
+      "bundleIdentifier": "com.blurface.app",
+      "buildNumber": "2",
+      "appStoreUrl": "https://apps.apple.com/app/id6831553194",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.blurface.app",
