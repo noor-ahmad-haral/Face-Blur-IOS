@@ -9,7 +9,17 @@ const hi: Translations = {
   home: {
     tagline: 'तुरंत निजता सुरक्षित करें',
     selectPhoto: 'फ़ोटो चुनें',
-    selectPhotoHint: 'अपनी गैलरी से चुनने के लिए टैप करें',
+    selectPhotoHint: 'गैलरी से चुनें या नई फ़ोटो लें',
+    fromLibrary: 'गैलरी से चुनें',
+    takePhoto: 'फ़ोटो लें',
+    privacyBadge: '100% डिवाइस पर · आपकी फ़ोटो कभी फ़ोन से बाहर नहीं जातीं',
+    howItWorks: 'यह कैसे काम करता है',
+    stepPick: 'फ़ोटो चुनें',
+    stepDetect: 'चेहरे पहचानें',
+    stepSave: 'धुंधला करें और सहेजें',
+    cameraDeniedTitle: 'कैमरा एक्सेस ज़रूरी है',
+    cameraDeniedBody: 'फ़ोटो लेने के लिए सेटिंग्स में कैमरा एक्सेस की अनुमति दें।',
+    openSettings: 'सेटिंग्स खोलें',
   },
   editor: {
     detectingFaces: 'चेहरे पहचाने जा रहे हैं…',

@@ -9,7 +9,17 @@ const ru: Translations = {
   home: {
     tagline: 'Мгновенная защита приватности',
     selectPhoto: 'Выберите фото',
-    selectPhotoHint: 'Нажмите, чтобы выбрать из галереи',
+    selectPhotoHint: 'Выберите из галереи или сделайте новое',
+    fromLibrary: 'Выбрать из галереи',
+    takePhoto: 'Сделать фото',
+    privacyBadge: '100% на устройстве · Фото не покидают ваш телефон',
+    howItWorks: 'Как это работает',
+    stepPick: 'Выберите фото',
+    stepDetect: 'Найдите лица',
+    stepSave: 'Размойте и сохраните',
+    cameraDeniedTitle: 'Нужен доступ к камере',
+    cameraDeniedBody: 'Разрешите доступ к камере в Настройках, чтобы сделать фото.',
+    openSettings: 'Открыть Настройки',
   },
   editor: {
     detectingFaces: 'Поиск лиц…',

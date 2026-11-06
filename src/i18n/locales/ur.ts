@@ -9,7 +9,17 @@ const ur: Translations = {
   home: {
     tagline: 'فوری طور پر رازداری محفوظ کریں',
     selectPhoto: 'تصویر منتخب کریں',
-    selectPhotoHint: 'اپنی گیلری سے منتخب کرنے کے لیے ٹیپ کریں',
+    selectPhotoHint: 'گیلری سے منتخب کریں یا نئی تصویر لیں',
+    fromLibrary: 'گیلری سے منتخب کریں',
+    takePhoto: 'تصویر لیں',
+    privacyBadge: '100% ڈیوائس پر · آپ کی تصاویر کبھی فون سے باہر نہیں جاتیں',
+    howItWorks: 'یہ کیسے کام کرتا ہے',
+    stepPick: 'تصویر منتخب کریں',
+    stepDetect: 'چہرے پہچانیں',
+    stepSave: 'دھندلا کریں اور محفوظ کریں',
+    cameraDeniedTitle: 'کیمرہ تک رسائی درکار ہے',
+    cameraDeniedBody: 'تصویر لینے کے لیے سیٹنگز میں کیمرہ تک رسائی کی اجازت دیں۔',
+    openSettings: 'سیٹنگز کھولیں',
   },
   editor: {
     detectingFaces: 'چہرے پہچانے جا رہے ہیں…',

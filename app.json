@@ -40,6 +40,14 @@
         }
       ],
       [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Blur Face needs camera access so you can take a photo and blur faces in it.",
+          "photosPermission": "Blur Face needs access to your photos to save and manage your edited photos.",
+          "microphonePermission": false
+        }
+      ],
+      [
         "expo-media-library",
         {
           "photosPermission": "Blur Face needs access to your photos to save and manage your edited photos.",

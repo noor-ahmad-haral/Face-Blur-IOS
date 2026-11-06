@@ -9,7 +9,17 @@ const ja: Translations = {
   home: {
     tagline: 'すぐにプライバシーを保護',
     selectPhoto: '写真を選択',
-    selectPhotoHint: 'タップしてライブラリから選択',
+    selectPhotoHint: 'ライブラリから選ぶか、新しく撮影',
+    fromLibrary: 'ライブラリから選択',
+    takePhoto: '写真を撮る',
+    privacyBadge: '100% 端末内で処理 · 写真がスマホの外に出ることはありません',
+    howItWorks: '使い方',
+    stepPick: '写真を選ぶ',
+    stepDetect: '顔を検出',
+    stepSave: 'ぼかして保存',
+    cameraDeniedTitle: 'カメラへのアクセスが必要です',
+    cameraDeniedBody: '写真を撮るには、設定でカメラへのアクセスを許可してください。',
+    openSettings: '設定を開く',
   },
   editor: {
     detectingFaces: '顔を検出中…',

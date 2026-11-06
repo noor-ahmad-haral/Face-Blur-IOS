@@ -19,7 +19,17 @@ const en = {
   home: {
     tagline: 'Protect privacy instantly',
     selectPhoto: 'Select a photo',
-    selectPhotoHint: 'Tap to choose from your library',
+    selectPhotoHint: 'Choose from your library or take a new one',
+    fromLibrary: 'Choose from Library',
+    takePhoto: 'Take Photo',
+    privacyBadge: '100% on-device · Photos never leave your phone',
+    howItWorks: 'How it works',
+    stepPick: 'Pick a photo',
+    stepDetect: 'Detect faces',
+    stepSave: 'Blur & save',
+    cameraDeniedTitle: 'Camera access needed',
+    cameraDeniedBody: 'Allow camera access in Settings to take a photo.',
+    openSettings: 'Open Settings',
   },
   editor: {
     detectingFaces: 'Detecting faces…',

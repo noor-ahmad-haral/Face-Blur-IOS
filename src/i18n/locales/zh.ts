@@ -9,7 +9,17 @@ const zh: Translations = {
   home: {
     tagline: '立即保护隐私',
     selectPhoto: '选择照片',
-    selectPhotoHint: '点按从相册中选择',
+    selectPhotoHint: '从相册选择或拍摄新照片',
+    fromLibrary: '从相册选择',
+    takePhoto: '拍照',
+    privacyBadge: '100% 设备端处理 · 照片绝不离开您的手机',
+    howItWorks: '使用方法',
+    stepPick: '选择照片',
+    stepDetect: '检测人脸',
+    stepSave: '模糊并保存',
+    cameraDeniedTitle: '需要相机权限',
+    cameraDeniedBody: '请在“设置”中允许访问相机以拍照。',
+    openSettings: '打开设置',
   },
   editor: {
     detectingFaces: '正在检测人脸…',

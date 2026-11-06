@@ -9,7 +9,17 @@ const id: Translations = {
   home: {
     tagline: 'Lindungi privasi seketika',
     selectPhoto: 'Pilih foto',
-    selectPhotoHint: 'Ketuk untuk memilih dari galeri',
+    selectPhotoHint: 'Pilih dari galeri atau ambil yang baru',
+    fromLibrary: 'Pilih dari Galeri',
+    takePhoto: 'Ambil Foto',
+    privacyBadge: '100% di perangkat · Foto tidak pernah keluar dari ponsel Anda',
+    howItWorks: 'Cara kerjanya',
+    stepPick: 'Pilih foto',
+    stepDetect: 'Deteksi wajah',
+    stepSave: 'Buramkan & simpan',
+    cameraDeniedTitle: 'Akses kamera diperlukan',
+    cameraDeniedBody: 'Izinkan akses kamera di Pengaturan untuk mengambil foto.',
+    openSettings: 'Buka Pengaturan',
   },
   editor: {
     detectingFaces: 'Mendeteksi wajah…',

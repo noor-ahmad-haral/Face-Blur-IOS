@@ -9,7 +9,17 @@ const fr: Translations = {
   home: {
     tagline: 'Protégez votre vie privée instantanément',
     selectPhoto: 'Choisir une photo',
-    selectPhotoHint: 'Touchez pour choisir dans votre galerie',
+    selectPhotoHint: 'Choisissez dans votre galerie ou prenez-en une nouvelle',
+    fromLibrary: 'Choisir dans la galerie',
+    takePhoto: 'Prendre une photo',
+    privacyBadge: '100 % sur l’appareil · Vos photos ne quittent jamais votre téléphone',
+    howItWorks: 'Comment ça marche',
+    stepPick: 'Choisissez une photo',
+    stepDetect: 'Détectez les visages',
+    stepSave: 'Floutez et enregistrez',
+    cameraDeniedTitle: 'Accès à l’appareil photo requis',
+    cameraDeniedBody: 'Autorisez l’accès à l’appareil photo dans Réglages pour prendre une photo.',
+    openSettings: 'Ouvrir Réglages',
   },
   editor: {
     detectingFaces: 'Détection des visages…',

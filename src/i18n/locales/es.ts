@@ -9,7 +9,17 @@ const es: Translations = {
   home: {
     tagline: 'Protege tu privacidad al instante',
     selectPhoto: 'Selecciona una foto',
-    selectPhotoHint: 'Toca para elegir de tu galería',
+    selectPhotoHint: 'Elige de tu galería o toma una nueva',
+    fromLibrary: 'Elegir de la galería',
+    takePhoto: 'Tomar foto',
+    privacyBadge: '100% en el dispositivo · Tus fotos nunca salen de tu teléfono',
+    howItWorks: 'Cómo funciona',
+    stepPick: 'Elige una foto',
+    stepDetect: 'Detecta caras',
+    stepSave: 'Desenfoca y guarda',
+    cameraDeniedTitle: 'Se necesita acceso a la cámara',
+    cameraDeniedBody: 'Permite el acceso a la cámara en Ajustes para tomar una foto.',
+    openSettings: 'Abrir Ajustes',
   },
   editor: {
     detectingFaces: 'Detectando caras…',

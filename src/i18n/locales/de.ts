@@ -9,7 +9,17 @@ const de: Translations = {
   home: {
     tagline: 'Schütze deine Privatsphäre sofort',
     selectPhoto: 'Foto auswählen',
-    selectPhotoHint: 'Tippe, um aus deiner Galerie zu wählen',
+    selectPhotoHint: 'Wähle aus deiner Galerie oder nimm ein neues auf',
+    fromLibrary: 'Aus Galerie wählen',
+    takePhoto: 'Foto aufnehmen',
+    privacyBadge: '100 % auf dem Gerät · Deine Fotos verlassen nie dein Handy',
+    howItWorks: 'So funktioniert’s',
+    stepPick: 'Foto wählen',
+    stepDetect: 'Gesichter erkennen',
+    stepSave: 'Weichzeichnen & speichern',
+    cameraDeniedTitle: 'Kamerazugriff erforderlich',
+    cameraDeniedBody: 'Erlaube den Kamerazugriff in den Einstellungen, um ein Foto aufzunehmen.',
+    openSettings: 'Einstellungen öffnen',
   },
   editor: {
     detectingFaces: 'Gesichter werden erkannt…',

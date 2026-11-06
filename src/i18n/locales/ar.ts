@@ -9,7 +9,17 @@ const ar: Translations = {
   home: {
     tagline: 'احمِ خصوصيتك فورًا',
     selectPhoto: 'اختر صورة',
-    selectPhotoHint: 'اضغط للاختيار من معرضك',
+    selectPhotoHint: 'اختر من معرضك أو التقط صورة جديدة',
+    fromLibrary: 'اختر من المعرض',
+    takePhoto: 'التقط صورة',
+    privacyBadge: '100% على الجهاز · صورك لا تغادر هاتفك أبدًا',
+    howItWorks: 'كيف يعمل',
+    stepPick: 'اختر صورة',
+    stepDetect: 'اكتشف الوجوه',
+    stepSave: 'تمويه وحفظ',
+    cameraDeniedTitle: 'يلزم الوصول إلى الكاميرا',
+    cameraDeniedBody: 'اسمح بالوصول إلى الكاميرا من الإعدادات لالتقاط صورة.',
+    openSettings: 'فتح الإعدادات',
   },
   editor: {
     detectingFaces: 'جارٍ اكتشاف الوجوه…',
