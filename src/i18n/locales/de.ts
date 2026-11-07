@@ -27,7 +27,7 @@ const de: Translations = {
     noFaces: 'Keine Gesichter gefunden',
     facesDetected: (n: number) => `Gesichter erkannt (${n})`,
     findingFaces: 'Suche Gesichter…',
-    addByHand: 'Tippe auf +, um einen Bereich selbst hinzuzufügen.',
+    addByHand: 'Tippe auf +, um einen beliebigen Bereich wie Nummernschilder oder Namen unkenntlich zu machen.',
     blurAll: 'Alle weichzeichnen',
     saving: 'Speichern…',
     detectionUnavailable: 'Gesichtserkennung nicht verfügbar. Füge die Bereiche manuell hinzu.',

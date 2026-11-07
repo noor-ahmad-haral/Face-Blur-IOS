@@ -17,13 +17,18 @@ type Box = { x: number; y: number; w: number; h: number };
 type Rect = { left: number; top: number; width: number; height: number };
 type Mode = 'move' | 'tl' | 'tr' | 'bl' | 'br' | null;
 
-const MIN_SIZE = 60;
+// Small enough to fit a number plate or a name tag snugly.
+const MIN_SIZE = 16;
 // Margin around the photo. The touch layer extends this far past the photo on
 // every side so corners sitting on the photo's edge can still be grabbed.
 const PANEL_PAD = 24;
-// How close (px) a touch must land to a corner to resize instead of move.
-const CORNER_REACH = 26;
+// How far (px) OUTSIDE the box a touch still grabs the nearest corner.
+const CORNER_REACH_OUT = 30;
+// How far INSIDE the box a touch grabs a corner, on a box big enough to spare it.
+const CORNER_REACH_IN = 22;
 const BRACKET = 24;
+// Below this size the thirds grid is just clutter.
+const GRID_MIN = 48;
 
 export default function CropScreen({ navigation, route }: Props) {
   const { photoUri, mock, aspect } = route.params;
@@ -207,6 +212,11 @@ function SelectionLayer({ rect, boxRef }: { rect: Rect; boxRef: React.MutableRef
     });
   }, [rect.width, rect.height]);
 
+  const bracketSize = {
+    width: Math.max(8, Math.min(BRACKET, box.w / 2)),
+    height: Math.max(8, Math.min(BRACKET, box.h / 2)),
+  };
+
   return (
     <View
       {...pan.panHandlers}
@@ -234,24 +244,37 @@ function SelectionLayer({ rect, boxRef }: { rect: Rect; boxRef: React.MutableRef
           { left: PANEL_PAD + box.x, top: PANEL_PAD + box.y, width: box.w, height: box.h },
         ]}
       >
-        <View style={[styles.gridLine, styles.gridV, { left: '33.33%' }]} />
-        <View style={[styles.gridLine, styles.gridV, { left: '66.66%' }]} />
-        <View style={[styles.gridLine, styles.gridH, { top: '33.33%' }]} />
-        <View style={[styles.gridLine, styles.gridH, { top: '66.66%' }]} />
-        <View style={[styles.bracket, styles.bTL]} />
-        <View style={[styles.bracket, styles.bTR]} />
-        <View style={[styles.bracket, styles.bBL]} />
-        <View style={[styles.bracket, styles.bBR]} />
+        {box.w >= GRID_MIN && (
+          <>
+            <View style={[styles.gridLine, styles.gridV, { left: '33.33%' }]} />
+            <View style={[styles.gridLine, styles.gridV, { left: '66.66%' }]} />
+          </>
+        )}
+        {box.h >= GRID_MIN && (
+          <>
+            <View style={[styles.gridLine, styles.gridH, { top: '33.33%' }]} />
+            <View style={[styles.gridLine, styles.gridH, { top: '66.66%' }]} />
+          </>
+        )}
+        {/* Brackets shrink with the box so they never overlap on a small one. */}
+        <View style={[styles.bracket, bracketSize, styles.bTL]} />
+        <View style={[styles.bracket, bracketSize, styles.bTR]} />
+        <View style={[styles.bracket, bracketSize, styles.bBL]} />
+        <View style={[styles.bracket, bracketSize, styles.bBR]} />
       </View>
     </View>
   );
 }
 
-// Which part of the box a touch grabbed: the nearest corner within reach
-// (resize), otherwise the inside (move), otherwise nothing.
+// Which part of the box a touch grabbed.
+// - Inside the box: move, except right at a corner of a box big enough to
+//   spare it. The inner corner reach shrinks with the box, so a tiny box (a
+//   number plate) is always movable by touching it.
+// - Just outside the box: resize from the nearest corner. This is how a tiny
+//   box is resized: grab just past its corner.
 function hitTest(b: Box, px: number, py: number): Mode {
-  // On a small box, shrink the corner reach so the middle stays draggable.
-  const reach = Math.min(CORNER_REACH, Math.min(b.w, b.h) / 3);
+  const inside = px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h;
+  const reach = inside ? Math.min(CORNER_REACH_IN, Math.min(b.w, b.h) / 4) : CORNER_REACH_OUT;
   const corners: [Exclude<Mode, 'move' | null>, number, number][] = [
     ['tl', b.x, b.y],
     ['tr', b.x + b.w, b.y],
@@ -262,14 +285,13 @@ function hitTest(b: Box, px: number, py: number): Mode {
   let bestD = Infinity;
   for (const [m, cx, cy] of corners) {
     const d = Math.hypot(px - cx, py - cy);
-    if (d <= reach + 12 && d < bestD) {
+    if (d <= reach && d < bestD) {
       best = m;
       bestD = d;
     }
   }
   if (best) return best;
-  if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) return 'move';
-  return null;
+  return inside ? 'move' : null;
 }
 
 function clamp(v: number, min: number, max: number) {
@@ -298,7 +320,7 @@ const styles = StyleSheet.create({
   gridLine: { position: 'absolute', backgroundColor: 'rgba(255,255,255,0.45)' },
   gridV: { top: 0, bottom: 0, width: 1 },
   gridH: { left: 0, right: 0, height: 1 },
-  bracket: { position: 'absolute', width: BRACKET, height: BRACKET, borderColor: '#fff' },
+  bracket: { position: 'absolute', borderColor: '#fff' },
   bTL: { left: -3, top: -3, borderTopWidth: 3, borderLeftWidth: 3 },
   bTR: { right: -3, top: -3, borderTopWidth: 3, borderRightWidth: 3 },
   bBL: { left: -3, bottom: -3, borderBottomWidth: 3, borderLeftWidth: 3 },

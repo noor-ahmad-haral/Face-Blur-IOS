@@ -27,7 +27,7 @@ const ur: Translations = {
     noFaces: 'کوئی چہرہ نہیں ملا',
     facesDetected: (n: number) => `پہچانے گئے چہرے (${n})`,
     findingFaces: 'چہرے تلاش کیے جا رہے ہیں…',
-    addByHand: 'خود علاقہ شامل کرنے کے لیے + دبائیں۔',
+    addByHand: 'کسی بھی حصے کو دھندلا کرنے کے لیے + دبائیں، جیسے نمبر پلیٹ یا نام۔',
     blurAll: 'سب دھندلا کریں',
     saving: 'محفوظ ہو رہا ہے…',
     detectionUnavailable: 'چہرہ پہچان دستیاب نہیں۔ علاقے خود شامل کریں۔',

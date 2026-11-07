@@ -27,7 +27,7 @@ const ja: Translations = {
     noFaces: '顔が見つかりません',
     facesDetected: (n: number) => `検出された顔 (${n})`,
     findingFaces: '顔を探しています…',
-    addByHand: '+ をタップして手動で範囲を追加します。',
+    addByHand: '+ をタップすると、ナンバープレートや名前など好きな範囲をぼかせます。',
     blurAll: 'すべてぼかす',
     saving: '保存中…',
     detectionUnavailable: '顔検出を利用できません。範囲を手動で追加してください。',

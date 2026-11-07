@@ -27,7 +27,7 @@ const zh: Translations = {
     noFaces: '未找到人脸',
     facesDetected: (n: number) => `检测到人脸 (${n})`,
     findingFaces: '正在查找人脸…',
-    addByHand: '点按 + 手动添加区域。',
+    addByHand: '点按 + 可模糊任意区域，例如车牌或名字。',
     blurAll: '全部模糊',
     saving: '正在保存…',
     detectionUnavailable: '人脸检测不可用。请手动添加区域。',

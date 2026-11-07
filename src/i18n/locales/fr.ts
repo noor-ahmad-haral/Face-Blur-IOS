@@ -27,7 +27,7 @@ const fr: Translations = {
     noFaces: 'Aucun visage trouvé',
     facesDetected: (n: number) => `Visages détectés (${n})`,
     findingFaces: 'Recherche de visages…',
-    addByHand: 'Touchez + pour ajouter une zone manuellement.',
+    addByHand: "Touchez + pour flouter n'importe quelle zone, comme une plaque d'immatriculation ou un nom.",
     blurAll: 'Tout flouter',
     saving: 'Enregistrement…',
     detectionUnavailable: 'La détection de visages est indisponible. Ajoutez les zones manuellement.',

@@ -166,13 +166,16 @@ export default function EditorScreen({ navigation, route }: Props) {
   // photoArea box (78% x 95% of the frame's inner area).
   const previewAspect = imgSize ? dispW / dispH : (availW * 0.78) / (availH * 0.95);
 
+  // Only detected faces count here; hand-drawn areas (plates, names, …) are
+  // listed in the same chip row but aren't faces.
+  const faceCount = regions.filter((r) => r.kind === 'face').length;
   const facesLabel = loading
     ? t.editor.detectingFaces
     : error
     ? t.editor.faces
-    : regions.length === 0
+    : faceCount === 0
     ? t.editor.noFaces
-    : t.editor.facesDetected(regions.length);
+    : t.editor.facesDetected(faceCount);
 
   function regionBox(r: BlurRegion) {
     return {
@@ -260,9 +263,6 @@ export default function EditorScreen({ navigation, route }: Props) {
 
         <Text style={styles.facesLabel}>{facesLabel}</Text>
         {error ? <Text style={styles.hint}>{error}</Text> : null}
-        {!loading && !error && regions.length === 0 ? (
-          <Text style={styles.hint}>{t.editor.addByHand}</Text>
-        ) : null}
 
         <ScrollView
           horizontal
@@ -280,6 +280,8 @@ export default function EditorScreen({ navigation, route }: Props) {
               <ThumbChip badge={i + 1}>
                 {r.thumbUri ? (
                   <Image source={{ uri: r.thumbUri }} resizeMode="cover" style={styles.faceThumb} />
+                ) : r.kind === 'custom' && displayUri && imgSize ? (
+                  <AreaThumb region={r} uri={displayUri} dispW={dispW} dispH={dispH} />
                 ) : (
                   <View style={{ transform: [{ scale: 1.3 }, { translateY: 6 }] }}>
                     <Avatar size={50} tone={r.tone} />
@@ -289,6 +291,10 @@ export default function EditorScreen({ navigation, route }: Props) {
             </Pressable>
           ))}
         </ScrollView>
+
+        {/* Always point at the + chip, so people know they can blur more than
+            faces. Hidden while detection runs, when the row is still empty. */}
+        {!loading ? <Text style={[styles.hint, styles.customHint]}>{t.editor.addByHand}</Text> : null}
       </ScrollView>
 
       <View style={[styles.bottomBar, { marginBottom: Math.max(insets.bottom, 12) + 12 }]}>
@@ -317,6 +323,39 @@ export default function EditorScreen({ navigation, route }: Props) {
         </View>
       )}
     </SafeAreaView>
+  );
+}
+
+// Chip preview of a hand-drawn area: the photo scaled so that area fills the
+// chip (cover-fit), clipped by the chip's rounded box.
+const CHIP = 62;
+function AreaThumb({
+  region,
+  uri,
+  dispW,
+  dispH,
+}: {
+  region: BlurRegion;
+  uri: string;
+  dispW: number;
+  dispH: number;
+}) {
+  const areaW = Math.max(1, region.w * dispW);
+  const areaH = Math.max(1, region.h * dispH);
+  const scale = Math.max(CHIP / areaW, CHIP / areaH);
+  return (
+    <View style={styles.faceThumb}>
+      <Image
+        source={{ uri }}
+        style={{
+          position: 'absolute',
+          width: dispW * scale,
+          height: dispH * scale,
+          left: -region.x * dispW * scale - (areaW * scale - CHIP) / 2,
+          top: -region.y * dispH * scale - (areaH * scale - CHIP) / 2,
+        }}
+      />
+    </View>
   );
 }
 
@@ -376,6 +415,7 @@ const styles = StyleSheet.create({
     color: colors.mutedD,
     fontSize: 13.5,
   },
+  customHint: { marginTop: 12, marginRight: 20 },
   body: { flex: 1 },
   bodyContent: { paddingBottom: 8 },
   chipsScroll: { flexGrow: 0 },
@@ -385,7 +425,7 @@ const styles = StyleSheet.create({
     gap: 10,
     flexDirection: 'row',
   },
-  faceThumb: { width: 62, height: 62 },
+  faceThumb: { width: 62, height: 62, overflow: 'hidden' },
   bottomBar: {
     marginHorizontal: 16,
     height: 58,

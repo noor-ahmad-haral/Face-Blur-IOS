@@ -27,7 +27,7 @@ const id: Translations = {
     noFaces: 'Tidak ada wajah ditemukan',
     facesDetected: (n: number) => `Wajah terdeteksi (${n})`,
     findingFaces: 'Mencari wajah…',
-    addByHand: 'Ketuk + untuk menambah area secara manual.',
+    addByHand: 'Ketuk + untuk memburamkan area mana pun, seperti pelat nomor atau nama.',
     blurAll: 'Buramkan semua',
     saving: 'Menyimpan…',
     detectionUnavailable: 'Deteksi wajah tidak tersedia. Tambahkan area secara manual.',

@@ -27,7 +27,7 @@ const ar: Translations = {
     noFaces: 'لم يتم العثور على وجوه',
     facesDetected: (n: number) => `الوجوه المكتشفة (${n})`,
     findingFaces: 'جارٍ البحث عن الوجوه…',
-    addByHand: 'اضغط + لإضافة منطقة يدويًا.',
+    addByHand: 'اضغط + لتمويه أي منطقة، مثل لوحات السيارات أو الأسماء.',
     blurAll: 'تمويه الكل',
     saving: 'جارٍ الحفظ…',
     detectionUnavailable: 'اكتشاف الوجوه غير متاح. أضف المناطق يدويًا.',

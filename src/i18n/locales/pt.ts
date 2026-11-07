@@ -27,7 +27,7 @@ const pt: Translations = {
     noFaces: 'Nenhum rosto encontrado',
     facesDetected: (n: number) => `Rostos detectados (${n})`,
     findingFaces: 'Procurando rostos…',
-    addByHand: 'Toque em + para adicionar uma área manualmente.',
+    addByHand: 'Toque em + para desfocar qualquer área, como placas de carro ou nomes.',
     blurAll: 'Desfocar tudo',
     saving: 'Salvando…',
     detectionUnavailable: 'A detecção de rostos não está disponível. Adicione as áreas manualmente.',

@@ -37,7 +37,7 @@ const en = {
     noFaces: 'No faces found',
     facesDetected: (n: number) => `Faces Detected (${n})`,
     findingFaces: 'Finding faces…',
-    addByHand: 'Tap + to add a blur region by hand.',
+    addByHand: 'Tap + to blur any area, like number plates or names.',
     blurAll: 'Blur all',
     saving: 'Saving…',
     detectionUnavailable: 'Face detection unavailable. Add blur regions manually.',

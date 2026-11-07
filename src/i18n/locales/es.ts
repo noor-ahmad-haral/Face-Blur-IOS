@@ -27,7 +27,7 @@ const es: Translations = {
     noFaces: 'No se encontraron caras',
     facesDetected: (n: number) => `Caras detectadas (${n})`,
     findingFaces: 'Buscando caras…',
-    addByHand: 'Toca + para añadir un área manualmente.',
+    addByHand: 'Toca + para difuminar cualquier área, como matrículas o nombres.',
     blurAll: 'Desenfocar todo',
     saving: 'Guardando…',
     detectionUnavailable: 'La detección de caras no está disponible. Añade las áreas manualmente.',
