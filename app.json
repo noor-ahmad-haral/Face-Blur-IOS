@@ -2,7 +2,7 @@
   "expo": {
     "name": "Blur Face",
     "slug": "blur-face",
-    "version": "1.0",
+    "version": "1.0.1",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -10,7 +10,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.blurface.app",
       "appleTeamId": "DQYN873AY2",
-      "buildNumber": "2",
+      "buildNumber": "3",
       "appStoreUrl": "https://apps.apple.com/app/id6831553194",
       "config": {
         "usesNonExemptEncryption": false
