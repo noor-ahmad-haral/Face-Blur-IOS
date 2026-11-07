@@ -95,8 +95,12 @@ export type RootStackParamList = {
   Onboarding: undefined;
   Home: undefined;
   Settings: undefined;
-  Editor: PhotoRef;
-  Crop: PhotoRef & { onConfirm: (region: BlurRegion) => void };
+  // customRegion is handed back by the Crop screen (via popTo + merge) when the
+  // user confirms a hand-drawn area.
+  Editor: PhotoRef & { customRegion?: BlurRegion };
+  // aspect = width / height of the photo as the Editor displays it, so the Crop
+  // screen can lay it out identically and return matching fractions.
+  Crop: PhotoRef & { aspect: number };
   Effects: { settings: EffectSettings; onApply: (settings: EffectSettings) => void };
   SavedFiles: PhotoRef & { fileName: string; fileSizeMB: number; regionsCount: number };
 };

@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { View, PanResponder, StyleSheet, LayoutChangeEvent } from 'react-native';
+import type { GestureResponderEvent } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -13,112 +14,84 @@ import { CheckMark } from '../components/icons';
 type Props = NativeStackScreenProps<RootStackParamList, 'Crop'>;
 
 type Box = { x: number; y: number; w: number; h: number };
-const MIN_SIZE = 70;
+type Rect = { left: number; top: number; width: number; height: number };
+type Mode = 'move' | 'tl' | 'tr' | 'bl' | 'br' | null;
 
-type Corner = 'tl' | 'tr' | 'bl' | 'br';
+const MIN_SIZE = 60;
+// Margin around the photo. The touch layer extends this far past the photo on
+// every side so corners sitting on the photo's edge can still be grabbed.
+const PANEL_PAD = 24;
+// How close (px) a touch must land to a corner to resize instead of move.
+const CORNER_REACH = 26;
+const BRACKET = 24;
 
 export default function CropScreen({ navigation, route }: Props) {
-  const { photoUri, mock, onConfirm } = route.params;
+  const { photoUri, mock, aspect } = route.params;
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
-  const [panelSize, setPanelSize] = useState({ width: 0, height: 0 });
-  const [box, setBox] = useState<Box>({ x: 40, y: 80, w: 220, h: 180 });
-  const boxRef = useRef(box);
-  boxRef.current = box;
-  const panelRef = useRef(panelSize);
-  panelRef.current = panelSize;
+
+  // Where the photo is drawn inside the panel: aspect-fit exactly like the
+  // Editor preview. The selection is kept relative to this rect, so the
+  // fractions handed back land on the same pixels in the Editor.
+  const [photoRect, setPhotoRect] = useState<Rect | null>(null);
+  const rectRef = useRef<Rect | null>(null);
+  // Live selection, written by the SelectionLayer as the user drags. Kept in a
+  // ref so dragging never re-renders this screen (photo, buttons, …).
+  const boxRef = useRef<Box>({ x: 0, y: 0, w: 0, h: 0 });
 
   function onPanelLayout(e: LayoutChangeEvent) {
     const { width, height } = e.nativeEvent.layout;
-    setPanelSize({ width, height });
-    setBox((b) => ({
-      x: Math.min(b.x, Math.max(0, width - b.w)),
-      y: Math.min(b.y, Math.max(0, height - b.h)),
-      w: Math.min(b.w, width),
-      h: Math.min(b.h, height),
-    }));
+    const availW = width - PANEL_PAD * 2;
+    const availH = height - PANEL_PAD * 2;
+    if (availW <= 0 || availH <= 0) return;
+    const a = aspect > 0 ? aspect : availW / availH;
+    let w = availW;
+    let h = availW / a;
+    if (h > availH) {
+      h = availH;
+      w = availH * a;
+    }
+    const rect = { left: (width - w) / 2, top: (height - h) / 2, width: w, height: h };
+    const prev = rectRef.current;
+    if (!prev) {
+      const side = Math.min(w, h) * 0.5;
+      boxRef.current = { x: (w - side) / 2, y: (h - side) / 2, w: side, h: side };
+    } else {
+      // Rotation / resize: keep the same relative selection.
+      const b = boxRef.current;
+      const sx = w / prev.width;
+      const sy = h / prev.height;
+      boxRef.current = { x: b.x * sx, y: b.y * sy, w: b.w * sx, h: b.h * sy };
+    }
+    rectRef.current = rect;
+    setPhotoRect(rect);
   }
-
-  // Snapshot the box at gesture start so per-move deltas (which are cumulative
-  // from gesture start) are applied relative to a fixed origin, not the
-  // continuously-updating state.
-  const dragStart = useRef<Box>(box);
-
-  const movePan = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onPanResponderGrant: () => {
-          dragStart.current = boxRef.current;
-        },
-        onPanResponderMove: (_, g) => {
-          const start = dragStart.current;
-          const panel = panelRef.current;
-          const x = clamp(start.x + g.dx, 0, panel.width - start.w);
-          const y = clamp(start.y + g.dy, 0, panel.height - start.h);
-          setBox({ ...start, x, y });
-        },
-      }),
-    []
-  );
-
-  function makeHandlePan(corner: Corner) {
-    return PanResponder.create({
-      onPanResponderGrant: () => {
-        dragStart.current = boxRef.current;
-      },
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, g) => {
-        const s = dragStart.current;
-        const panel = panelRef.current;
-        let { x, y, w, h } = s;
-        if (corner === 'tl') {
-          x = clamp(s.x + g.dx, 0, s.x + s.w - MIN_SIZE);
-          y = clamp(s.y + g.dy, 0, s.y + s.h - MIN_SIZE);
-          w = s.x + s.w - x;
-          h = s.y + s.h - y;
-        } else if (corner === 'tr') {
-          y = clamp(s.y + g.dy, 0, s.y + s.h - MIN_SIZE);
-          w = clamp(s.w + g.dx, MIN_SIZE, panel.width - s.x);
-          h = s.y + s.h - y;
-        } else if (corner === 'bl') {
-          x = clamp(s.x + g.dx, 0, s.x + s.w - MIN_SIZE);
-          w = s.x + s.w - x;
-          h = clamp(s.h + g.dy, MIN_SIZE, panel.height - s.y);
-        } else {
-          w = clamp(s.w + g.dx, MIN_SIZE, panel.width - s.x);
-          h = clamp(s.h + g.dy, MIN_SIZE, panel.height - s.y);
-        }
-        setBox({ x, y, w, h });
-      },
-    });
-  }
-
-  const handlePans = useMemo(
-    () => ({
-      tl: makeHandlePan('tl'),
-      tr: makeHandlePan('tr'),
-      bl: makeHandlePan('bl'),
-      br: makeHandlePan('br'),
-    }),
-    []
-  );
 
   function confirm() {
-    const panel = panelRef.current;
-    if (panel.width > 0 && panel.height > 0) {
-      onConfirm({
-        id: `custom-${Date.now()}`,
-        x: box.x / panel.width,
-        y: box.y / panel.height,
-        w: box.w / panel.width,
-        h: box.h / panel.height,
-        tone: '#c9853a',
-        blurred: true,
-        kind: 'custom',
-      });
+    const r = rectRef.current;
+    const b = boxRef.current;
+    if (!r || r.width === 0 || r.height === 0) {
+      navigation.goBack();
+      return;
     }
-    navigation.goBack();
+    // Merge only customRegion: re-sending photoUri would change the Editor's
+    // photo param and re-run face detection, wiping the user's edits.
+    navigation.popTo(
+      'Editor',
+      {
+        customRegion: {
+          id: `custom-${Date.now()}`,
+          x: b.x / r.width,
+          y: b.y / r.height,
+          w: b.w / r.width,
+          h: b.h / r.height,
+          tone: '#c9853a',
+          blurred: true,
+          kind: 'custom',
+        },
+      },
+      { merge: true }
+    );
   }
 
   return (
@@ -126,32 +99,17 @@ export default function CropScreen({ navigation, route }: Props) {
       <EditorTopBar title={t.crop.title} left onBack={() => navigation.goBack()} />
 
       <View style={styles.panel} onLayout={onPanelLayout}>
-        <PhotoBackdrop photoUri={photoUri} mock={mock} />
-
-        {panelSize.width > 0 && (
+        {photoRect && (
           <>
-            <View pointerEvents="none" style={[styles.dim, { top: 0, left: 0, right: 0, height: box.y }]} />
-            <View pointerEvents="none" style={[styles.dim, { top: box.y + box.h, left: 0, right: 0, bottom: 0 }]} />
-            <View pointerEvents="none" style={[styles.dim, { top: box.y, left: 0, width: box.x, height: box.h }]} />
-            <View
-              pointerEvents="none"
-              style={[styles.dim, { top: box.y, left: box.x + box.w, right: 0, height: box.h }]}
-            />
-
-            <View
-              {...movePan.panHandlers}
-              style={[styles.selection, { left: box.x, top: box.y, width: box.w, height: box.h }]}
-            >
-              <View style={[styles.gridLine, styles.gridV, { left: '33.33%' }]} />
-              <View style={[styles.gridLine, styles.gridV, { left: '66.66%' }]} />
-              <View style={[styles.gridLine, styles.gridH, { top: '33.33%' }]} />
-              <View style={[styles.gridLine, styles.gridH, { top: '66.66%' }]} />
-
-              <View {...handlePans.tl.panHandlers} style={[styles.handle, styles.handleTL]} />
-              <View {...handlePans.tr.panHandlers} style={[styles.handle, styles.handleTR]} />
-              <View {...handlePans.bl.panHandlers} style={[styles.handle, styles.handleBL]} />
-              <View {...handlePans.br.panHandlers} style={[styles.handle, styles.handleBR]} />
+            <View style={[styles.photo, photoRect]}>
+              <PhotoBackdrop photoUri={photoUri} mock={mock} />
             </View>
+            {/* Remount on size change so the layer picks up the rescaled box. */}
+            <SelectionLayer
+              key={`${photoRect.width}x${photoRect.height}`}
+              rect={photoRect}
+              boxRef={boxRef}
+            />
           </>
         )}
       </View>
@@ -170,6 +128,150 @@ export default function CropScreen({ navigation, route }: Props) {
   );
 }
 
+// Dim overlay + selection box + one touch surface.
+//
+// The touch surface is a single view that never moves, and finger positions
+// are read relative to it (locationX/Y). Earlier versions attached responders
+// to the box itself — a view that moves under the finger — which let the box
+// drift ahead of the touch. Here the box is purely visual (pointerEvents none),
+// so the finger-to-box mapping is always exactly 1:1.
+function SelectionLayer({ rect, boxRef }: { rect: Rect; boxRef: React.MutableRefObject<Box> }) {
+  const [box, setBoxState] = useState<Box>(boxRef.current);
+
+  const pan = useMemo(() => {
+    let mode: Mode = null;
+    let start: Box = boxRef.current;
+    let startX = 0;
+    let startY = 0;
+
+    const point = (e: GestureResponderEvent) => ({
+      x: e.nativeEvent.locationX - PANEL_PAD,
+      y: e.nativeEvent.locationY - PANEL_PAD,
+    });
+
+    const apply = (b: Box) => {
+      boxRef.current = b;
+      setBoxState(b);
+    };
+
+    return PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderTerminationRequest: () => false,
+      onPanResponderGrant: (e) => {
+        const p = point(e);
+        start = boxRef.current;
+        startX = p.x;
+        startY = p.y;
+        mode = hitTest(start, p.x, p.y);
+      },
+      onPanResponderMove: (e) => {
+        if (!mode) return;
+        const p = point(e);
+        const dx = p.x - startX;
+        const dy = p.y - startY;
+        const s = start;
+        if (mode === 'move') {
+          apply({
+            ...s,
+            x: clamp(s.x + dx, 0, rect.width - s.w),
+            y: clamp(s.y + dy, 0, rect.height - s.h),
+          });
+          return;
+        }
+        const minW = Math.min(MIN_SIZE, rect.width);
+        const minH = Math.min(MIN_SIZE, rect.height);
+        const right = s.x + s.w;
+        const bottom = s.y + s.h;
+        let { x, y, w, h } = s;
+        if (mode === 'tl' || mode === 'bl') {
+          x = clamp(s.x + dx, 0, right - minW);
+          w = right - x;
+        } else {
+          w = clamp(s.w + dx, minW, rect.width - s.x);
+        }
+        if (mode === 'tl' || mode === 'tr') {
+          y = clamp(s.y + dy, 0, bottom - minH);
+          h = bottom - y;
+        } else {
+          h = clamp(s.h + dy, minH, rect.height - s.y);
+        }
+        apply({ x, y, w, h });
+      },
+      onPanResponderRelease: () => {
+        mode = null;
+      },
+      onPanResponderTerminate: () => {
+        mode = null;
+      },
+    });
+  }, [rect.width, rect.height]);
+
+  return (
+    <View
+      {...pan.panHandlers}
+      style={[
+        styles.touchLayer,
+        {
+          left: rect.left - PANEL_PAD,
+          top: rect.top - PANEL_PAD,
+          width: rect.width + PANEL_PAD * 2,
+          height: rect.height + PANEL_PAD * 2,
+        },
+      ]}
+    >
+      {/* Everything below is visual only. */}
+      <View pointerEvents="none" style={[styles.photoArea, { width: rect.width, height: rect.height }]}>
+        <View style={[styles.dim, { top: 0, left: 0, right: 0, height: box.y }]} />
+        <View style={[styles.dim, { top: box.y + box.h, left: 0, right: 0, bottom: 0 }]} />
+        <View style={[styles.dim, { top: box.y, left: 0, width: box.x, height: box.h }]} />
+        <View style={[styles.dim, { top: box.y, left: box.x + box.w, right: 0, height: box.h }]} />
+      </View>
+      <View
+        pointerEvents="none"
+        style={[
+          styles.selection,
+          { left: PANEL_PAD + box.x, top: PANEL_PAD + box.y, width: box.w, height: box.h },
+        ]}
+      >
+        <View style={[styles.gridLine, styles.gridV, { left: '33.33%' }]} />
+        <View style={[styles.gridLine, styles.gridV, { left: '66.66%' }]} />
+        <View style={[styles.gridLine, styles.gridH, { top: '33.33%' }]} />
+        <View style={[styles.gridLine, styles.gridH, { top: '66.66%' }]} />
+        <View style={[styles.bracket, styles.bTL]} />
+        <View style={[styles.bracket, styles.bTR]} />
+        <View style={[styles.bracket, styles.bBL]} />
+        <View style={[styles.bracket, styles.bBR]} />
+      </View>
+    </View>
+  );
+}
+
+// Which part of the box a touch grabbed: the nearest corner within reach
+// (resize), otherwise the inside (move), otherwise nothing.
+function hitTest(b: Box, px: number, py: number): Mode {
+  // On a small box, shrink the corner reach so the middle stays draggable.
+  const reach = Math.min(CORNER_REACH, Math.min(b.w, b.h) / 3);
+  const corners: [Exclude<Mode, 'move' | null>, number, number][] = [
+    ['tl', b.x, b.y],
+    ['tr', b.x + b.w, b.y],
+    ['bl', b.x, b.y + b.h],
+    ['br', b.x + b.w, b.y + b.h],
+  ];
+  let best: Mode = null;
+  let bestD = Infinity;
+  for (const [m, cx, cy] of corners) {
+    const d = Math.hypot(px - cx, py - cy);
+    if (d <= reach + 12 && d < bestD) {
+      best = m;
+      bestD = d;
+    }
+  }
+  if (best) return best;
+  if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) return 'move';
+  return null;
+}
+
 function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
 }
@@ -180,18 +282,27 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     borderRadius: 14,
+    backgroundColor: colors.frame,
+  },
+  photo: { position: 'absolute', borderRadius: 6, overflow: 'hidden' },
+  touchLayer: { position: 'absolute' },
+  photoArea: {
+    position: 'absolute',
+    left: PANEL_PAD,
+    top: PANEL_PAD,
+    borderRadius: 6,
     overflow: 'hidden',
   },
-  dim: { position: 'absolute', backgroundColor: 'rgba(14,19,24,0.45)' },
-  selection: { position: 'absolute' },
-  gridLine: { position: 'absolute', backgroundColor: 'rgba(255,255,255,0.5)' },
+  dim: { position: 'absolute', backgroundColor: 'rgba(14,19,24,0.55)' },
+  selection: { position: 'absolute', borderWidth: 1, borderColor: 'rgba(255,255,255,0.8)' },
+  gridLine: { position: 'absolute', backgroundColor: 'rgba(255,255,255,0.45)' },
   gridV: { top: 0, bottom: 0, width: 1 },
   gridH: { left: 0, right: 0, height: 1 },
-  handle: { position: 'absolute', width: 28, height: 28 },
-  handleTL: { left: -14, top: -14, borderTopWidth: 3, borderLeftWidth: 3, borderColor: '#fff' },
-  handleTR: { right: -14, top: -14, borderTopWidth: 3, borderRightWidth: 3, borderColor: '#fff' },
-  handleBL: { left: -14, bottom: -14, borderBottomWidth: 3, borderLeftWidth: 3, borderColor: '#fff' },
-  handleBR: { right: -14, bottom: -14, borderBottomWidth: 3, borderRightWidth: 3, borderColor: '#fff' },
+  bracket: { position: 'absolute', width: BRACKET, height: BRACKET, borderColor: '#fff' },
+  bTL: { left: -3, top: -3, borderTopWidth: 3, borderLeftWidth: 3 },
+  bTR: { right: -3, top: -3, borderTopWidth: 3, borderRightWidth: 3 },
+  bBL: { left: -3, bottom: -3, borderBottomWidth: 3, borderLeftWidth: 3 },
+  bBR: { right: -3, bottom: -3, borderBottomWidth: 3, borderRightWidth: 3 },
   bottomBar: {
     height: 58,
     marginHorizontal: 16,

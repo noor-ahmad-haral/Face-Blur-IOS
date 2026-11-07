@@ -46,7 +46,13 @@ export default function RootNavigator() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Editor" component={EditorScreen} />
-        <Stack.Screen name="Crop" component={CropScreen} options={{ presentation: 'modal' }} />
+        <Stack.Screen
+          name="Crop"
+          component={CropScreen}
+          // Full-screen with no swipe-to-dismiss: on a page-sheet modal, dragging
+          // the selection box down was dragging (and closing) the sheet instead.
+          options={{ presentation: 'fullScreenModal', gestureEnabled: false }}
+        />
         <Stack.Screen
           name="Effects"
           component={EffectsScreen}

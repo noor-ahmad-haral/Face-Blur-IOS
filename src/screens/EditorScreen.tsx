@@ -41,7 +41,7 @@ const MOCK_FACES: BlurRegion[] = [
 ];
 
 export default function EditorScreen({ navigation, route }: Props) {
-  const { photoUri, mock } = route.params;
+  const { photoUri, mock, customRegion } = route.params;
   const { t } = useI18n();
   const { width: winW, height: winH } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -72,6 +72,15 @@ export default function EditorScreen({ navigation, route }: Props) {
         if (cancelled) return;
         setError(t.editor.detectionUnavailable);
         setDisplayUri(photoUri);
+        // Still size the photo so it gets the normal aspect-fit preview and the
+        // user can blur areas by hand even though detection failed.
+        Image.getSize(
+          photoUri,
+          (w, h) => {
+            if (!cancelled) setImgSize({ w, h });
+          },
+          () => {}
+        );
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -93,12 +102,18 @@ export default function EditorScreen({ navigation, route }: Props) {
     setRegions((prev) => prev.map((r) => ({ ...r, blurred: false })));
   }
 
+  // The Crop screen returns its selection as a route param (merged onto this
+  // screen via popTo). Ids are unique per selection, so re-renders with the same
+  // param never add it twice.
+  useEffect(() => {
+    if (!customRegion) return;
+    setRegions((prev) => (prev.some((r) => r.id === customRegion.id) ? prev : [...prev, customRegion]));
+  }, [customRegion]);
+
   function addCustomRegion() {
-    navigation.navigate('Crop', {
-      photoUri: displayUri,
-      mock,
-      onConfirm: (region) => setRegions((prev) => [...prev, region]),
-    });
+    // Need the photo's displayed shape first so the selection maps 1:1.
+    if (photoUri && !imgSize) return;
+    navigation.navigate('Crop', { photoUri: displayUri, mock, aspect: previewAspect });
   }
 
   function openEffects() {
@@ -146,6 +161,10 @@ export default function EditorScreen({ navigation, route }: Props) {
       dispW = availH * aspect;
     }
   }
+
+  // Shape of the photo as previewed below. For the mock placeholder that's the
+  // photoArea box (78% x 95% of the frame's inner area).
+  const previewAspect = imgSize ? dispW / dispH : (availW * 0.78) / (availH * 0.95);
 
   const facesLabel = loading
     ? t.editor.detectingFaces
@@ -251,7 +270,7 @@ export default function EditorScreen({ navigation, route }: Props) {
           style={styles.chipsScroll}
           contentContainerStyle={styles.chipsRow}
         >
-          <Pressable onPress={addCustomRegion}>
+          <Pressable onPress={addCustomRegion} disabled={!!photoUri && !imgSize}>
             <ThumbChip dashed>
               <PlusIcon color={colors.mutedD} s={18} />
             </ThumbChip>
